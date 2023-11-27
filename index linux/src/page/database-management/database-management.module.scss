@@ -1,0 +1,73 @@
+.container {
+    width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 30px;
+}
+
+.server-list {
+    width: 30%;
+}
+
+.server-card {
+    background-color: white;
+    color: blue;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 8px;
+
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        box-shadow: rgba(6, 130, 255, 0.2) 0px 8px 24px;
+    }
+
+    :focus {
+        outline: 1px solid blue;
+    }
+}
+
+.data-card {
+    position: relative;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    background-color: white;
+    width: 68%;
+    min-height: 400px;
+    padding: 10px;
+}
+
+.binfile {
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid rgb(242, 242, 242);
+
+    &:hover {
+        box-shadow: rgba(31, 139, 248, 0.2) 0px 8px 24px;
+    }
+}
+
+.card-footer {
+    background-color: white;
+    display: flex;
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    width: 100%;
+
+}

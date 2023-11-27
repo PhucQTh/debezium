@@ -1,0 +1,79 @@
+.wrapper {
+    position: fixed;
+    /* Sit on top of the page content */
+    display: block;
+    /* Hidden by default */
+    width: 100%;
+    /* Full width (cover the whole page) */
+    height: 100%;
+    /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Black background with opacity */
+    z-index: 1;
+    /* Specify a stack order in case you're using a different order for other elements */
+}
+
+.wrapper-hide {
+    display: none;
+}
+
+.popup {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    /* Add shadow */
+    border-radius: 10px;
+    min-width: 50%;
+    min-height: 80%;
+    max-height: 95%;
+    padding: 10px;
+    padding-inline: 40px;
+    overflow: auto;
+    overflow-x: hidden;
+
+}
+
+.tooltip {
+    font-size: 1.4rem;
+    position: absolute;
+    z-index: 2;
+    visibility: hidden;
+    top: 40px;
+    background-color: rgb(0, 0, 0);
+    color: #ffffff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    color: red;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    background-color: white;
+    border: 1px solid red;
+
+    &:hover .tooltip {
+        visibility: visible;
+    }
+}

@@ -1,0 +1,130 @@
+@import "src/styles/_mixin";
+
+.header-wrapper {
+    height: 70px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    font-size: 1.6rem;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 1px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.logo {
+    height: 65px;
+
+    @include mobile {
+        height: 50px;
+    }
+}
+
+.header-mobile {
+    padding-inline: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @include desktop {
+        display: none;
+    }
+}
+
+.expand-menu {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    flex-direction: column;
+
+    @include desktop {
+        display: none;
+    }
+}
+
+
+
+
+.mobile-menu-btn {
+    background-color: #fff;
+    display: flex;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border-width: 1px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    font-size: 2rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-container {
+    height: 100%;
+    width: var(--default-layout-width);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @include mobile {
+        display: none;
+    }
+}
+
+.header-left {
+    display: flex;
+    width: 50%;
+    // justify-content: space-between;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    width: 50%;
+    justify-content: right;
+    align-items: center;
+}
+
+.header-link {
+    text-transform: capitalize;
+    padding: 10px;
+    margin-inline: 5px;
+
+    &:hover {
+        border-radius: 25px;
+        background-color: #f1f1f1;
+        // color: #fff;
+    }
+}
+
+.avatar {
+    height: 50px;
+    border-radius: 100%;
+    margin-inline: 10px;
+}
+
+// Mobile
+
+.mobile-wrapper {
+    @include desktop {
+        display: none;
+    }
+
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.menu-btn {
+    color: var(--primary-color);
+}
+
+.header-menu {
+    display: flex;
+}

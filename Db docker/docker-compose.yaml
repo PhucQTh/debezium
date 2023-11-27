@@ -1,0 +1,16 @@
+version: '3'
+volumes:
+  data:
+services:
+  # MariaDb
+  ProductionBackup:
+    container_name: ProductionBackup
+    image: mariadb:10.3.38
+    environment:
+      MYSQL_ROOT_PASSWORD: api@#1470
+      MYSQL_USER: acca
+      MYSQL_PASSWORD: api@#1470
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - "3306:3306"

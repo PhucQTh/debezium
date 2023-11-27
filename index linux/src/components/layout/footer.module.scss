@@ -1,0 +1,24 @@
+@import "src/styles/_mixin";
+
+.footer-warraper {
+    margin-top: 10px;
+    font-size: 1.4rem;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+    justify-content: space-around;
+    padding: 20px;
+    font-weight: bold;
+
+    @include mobile {
+        flex-direction: column;
+        padding-top: 20px;
+    }
+
+    .apiLogo {
+        height: 65px;
+    }
+}

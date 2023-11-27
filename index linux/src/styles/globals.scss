@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+    --default-layout-width: 1440px;
+    --primary-color: #ea9c23;
+    --grey: #777;
+    --white: #fff;
+    --black: #000;
+    --red: red;
+
+}
+
+html {
+    font-size: 62%;
+    scroll-behavior: smooth;
+    background-color: #fbfbfc;
+
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 3px;
+}
+
+button {
+    border-radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
+}
+
+button,
+input,
+[tabindex] {
+    outline: none;
+    border: none;
+}
+
+a[href] {
+    text-decoration: none;
+}
+
+main {
+    scroll-behavior: smooth;
+}

@@ -1,0 +1,49 @@
+.btn {
+    padding: 10px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    color: rgb(0, 0, 0);
+    font-size: 1.6rem;
+    font-weight: bold;
+    align-items: center;
+    border-radius: 10px;
+
+    +.btn {
+        // margin-top: 10px;
+    }
+
+}
+
+.red {
+    background-color: red;
+    box-shadow: rgba(160, 0, 0, 0.2) 0px 8px 24px;
+    color: white;
+}
+
+.blue {
+    background-color: rgb(0, 179, 255);
+    box-shadow: rgba(48, 190, 255, 0.2) 0px 8px 24px;
+    color: white;
+}
+
+.mint {
+    background-color: rgb(84, 255, 167);
+    box-shadow: rgba(88, 255, 149, 0.2) 0px 8px 24px;
+    color: rgb(0, 0, 0);
+}
+
+.btn-sm {
+    width: 130px;
+}
+
+.mb {
+    margin-bottom: 10px;
+}
+
+.ml {
+    margin-left: 10px;
+}
+
+.mr {
+    margin-right: 10px;
+}

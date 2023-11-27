@@ -1,0 +1,15 @@
+version: '1'
+volumes:
+  sft:
+services:
+  SFTBackup:
+    container_name: SFTBackup
+    image: mariadb:10.4.17
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ss_2018
+      MYSQL_USER: acca
+      MYSQL_PASSWORD: P@ss_2018
+    volumes:
+      - sft:/var/lib/mysql
+    ports:
+      - "3306:3306"

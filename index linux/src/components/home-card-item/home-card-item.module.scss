@@ -1,0 +1,51 @@
+.item-card {
+    margin-inline: 10px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    color: #00556a;
+    height: 80px;
+    width: 300px;
+    border-radius: 18px;
+    border-width: 1px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.item-icon {
+    font-size: 3rem;
+}
+
+.item-title {
+    padding-left: 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+}
+
+.number-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #ff0303;
+    box-shadow: rgba(255, 55, 0, 0.2) 0px 8px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span {
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: white;
+    }
+}

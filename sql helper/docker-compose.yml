@@ -1,0 +1,13 @@
+version: "1"
+services:
+  helper:
+    build:
+      context: .
+    container_name: sql-helper
+    ports:
+      - "4000:4000" # map 80 in container => 3000 in local
+    restart: always
+    volumes:
+      - app-data:/app
+volumes:
+  app-data:
