@@ -1,6 +1,11 @@
 const express = require('express');
 const mysql = require('mysql');
-const { prodConfig, sftConfig, backupConfig } = require('./config');
+const {
+  prodConfig,
+  sftConfig,
+  backupConfig,
+  sftBackupConfig,
+} = require('./config');
 const cors = require('cors');
 
 const app = express();
@@ -15,7 +20,7 @@ app.get('/api/get-pk/:server/:dbname', (req, res) => {
   GROUP BY TABLE_NAME;`;
   try {
     conn = mysql.createConnection(
-      server === 'production' ? prodConfig : sftConfig
+      server === 'production' ? backupConfig : sftBackupConfig
     );
     conn.query(query, [dbname], (err, data) => {
       const formattedData = data.map((row) => ({

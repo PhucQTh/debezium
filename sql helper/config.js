@@ -6,7 +6,7 @@ module.exports = {
     password: 'api@#1470',
   },
   sftConfig: {
-    host: '192.168.109.42',
+    host: '192.168.109.11',
     port: '3306',
     user: 'root',
     password: 'P@ss_2018',
@@ -16,5 +16,11 @@ module.exports = {
     port: '3306',
     user: 'root',
     password: 'api@#1470',
+  },
+  sftBackupConfig: {
+    host: '192.168.109.42',
+    port: '3306',
+    user: 'root',
+    password: 'P@ss_2018',
   },
 };

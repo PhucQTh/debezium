@@ -84,7 +84,7 @@ function ReplicaManagementPage() {
             <button
               className='text-white text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg'
               onClick={() => {
-                createSinkConnector(tables);
+                connector && createSinkConnector(tables, connector);
               }}
             >
               Create Sink Connector
@@ -165,12 +165,27 @@ function ReplicaManagementPage() {
     </div>
   );
 }
-const createSinkConnector = async (data: string[]) => {
-  const sqlHepperApiURL = `${config.sqlHelperUrl}/get-pk/`;
-
+const createSinkConnector = async (data: string[], connector: string) => {
+  const sqlHepperApiURL = `${
+    config.sqlHelperUrl
+  }/get-pk/${connector.toLowerCase()}/`;
   const uniqueList = Array.from(
     new Set(data.map((item) => item.split('.')[1]))
   );
+  const {
+    backupDbHost,
+    backupDbUser,
+    backupDbPassword,
+    sftBackupDbHost,
+    sftBackupDbUser,
+    sftBackupDbPassword,
+  } = config;
+  const host =
+    connector.toLowerCase() === 'sft' ? sftBackupDbHost : backupDbHost;
+  const user =
+    connector.toLowerCase() === 'sft' ? sftBackupDbUser : backupDbUser;
+  const password =
+    connector.toLowerCase() === 'sft' ? sftBackupDbPassword : backupDbPassword;
 
   await Promise.all(
     uniqueList.map(async (db) => {
@@ -178,8 +193,8 @@ const createSinkConnector = async (data: string[]) => {
       await Promise.all(
         response.data.map(async (item: any) => {
           const connectorName = `sink-${db}-${item['TABLE_NAME']}`;
-          // const connectionUrl = `jdbc:mysql://${config.backupDbHost}/${db}?useSSL=false`;
-          const connectionUrl = `jdbc:mysql://${config.backupDbHost}/clone_sft?useSSL=false`;
+          const connectionUrl = `jdbc:mysql://${host}/${db}?useSSL=false`;
+          // const connectionUrl = `jdbc:mysql://${config.backupDbHost}/clone_sft?useSSL=false`;
           const body = {
             name: connectorName,
             config: {
@@ -190,8 +205,8 @@ const createSinkConnector = async (data: string[]) => {
               'value.converter.schemas.enable': 'true',
               'tasks.max': '1',
               'connection.url': connectionUrl,
-              'connection.user': config.backupDbUser,
-              'connection.password': config.backupDbPassword,
+              'connection.user': user,
+              'connection.password': password,
               topics: `${data[0].split('.')[0]}.${db}.${item['TABLE_NAME']}`,
               'insert.mode': 'upsert',
               'auto.create': 'true',
@@ -225,6 +240,8 @@ const createSinkConnector = async (data: string[]) => {
             });
           } catch (error) {
             console.log(error);
+          } finally {
+            console.log('done');
           }
         })
       );
