@@ -2,6 +2,7 @@
 
 
 .wrapper {
+
     display: grid;
     grid-template-columns: auto auto auto;
     justify-content: center;
@@ -16,11 +17,13 @@
 }
 
 .item-card {
+    position: relative;
     justify-content: center;
     align-items: center;
     text-align: center;
     font-size: 1.7rem;
     font-weight: bold;
+
 }
 
 .item-img {
@@ -35,4 +38,19 @@
     height: 100px;
     width: 250px;
     object-fit: contain;
+
+    &:hover {
+        cursor: pointer;
+        box-shadow: rgba(4, 253, 0, 0.2) 0px 8px 24px;
+    }
+}
+
+.number-indicator {
+    background-color: #000;
+    border-radius: 8px;
+    width: 50px;
+    color: #fff;
+    position: absolute;
+    right: 0;
+    top: 0;
 }

@@ -8,6 +8,7 @@ import ReplicaManagementPage from './page/replica-management-page/replica-manage
 import ReplicaIndexPage from './page/replica-management-page/replica-index';
 import ConnectorCreate from './page/replica-management-page/replica-connector-create';
 import DatabaseIndexPage from './page/database-management/database-index';
+import LoginPage from './page/auth/login-page';
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -55,6 +56,11 @@ const routes = [
     name: 'Database Management',
     path: '/database-management',
     element: DatabaseIndexPage,
+  },
+  {
+    name: 'Login',
+    path: '/login',
+    element: LoginPage,
   },
 ];
 export default App;

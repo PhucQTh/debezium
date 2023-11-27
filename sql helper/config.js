@@ -6,7 +6,7 @@ module.exports = {
     password: 'api@#1470',
   },
   sftConfig: {
-    host: '192.168.109.11',
+    host: '192.168.109.42',
     port: '3306',
     user: 'root',
     password: 'P@ss_2018',

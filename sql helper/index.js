@@ -7,16 +7,17 @@ const app = express();
 
 app.use(cors());
 
-app.get('/api/get-pk/:dbname', (req, res) => {
-  const dbSchema = req.params.dbname;
+app.get('/api/get-pk/:server/:dbname', (req, res) => {
+  const { dbname, server } = req.params;
   const query = `SELECT TABLE_NAME, GROUP_CONCAT(COLUMN_NAME) AS PK
   FROM INFORMATION_SCHEMA.COLUMNS
   WHERE TABLE_SCHEMA = ? AND COLUMN_KEY = 'PRI'
   GROUP BY TABLE_NAME;`;
   try {
-    // conn = mysql.createConnection(backupConfig);
-    conn = mysql.createConnection(sftConfig);
-    conn.query(query, [dbSchema], (err, data) => {
+    conn = mysql.createConnection(
+      server === 'production' ? prodConfig : sftConfig
+    );
+    conn.query(query, [dbname], (err, data) => {
       const formattedData = data.map((row) => ({
         TABLE_NAME: row.TABLE_NAME,
         PK: row.PK.split(','),
