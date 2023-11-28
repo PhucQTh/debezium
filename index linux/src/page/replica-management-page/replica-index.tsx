@@ -16,6 +16,8 @@ import {
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import PanelPopup from 'src/components/panel-popup/panel-popup';
+import { handleOpenPopup } from 'src/redux/actions/app-action';
+import { useAppDispatch, useAppSelector } from 'src/redux/hook';
 const cx = classNames.bind(styles);
 function ReplicaIndexPage() {
   const [connectors, setConnectors] = useState<Topic[]>([]);
@@ -24,8 +26,11 @@ function ReplicaIndexPage() {
   const [database, setDatabase] = useState(['']);
   const [popupContent, setPopupContent] = useState<any>({});
   const [bodyShow, setBodyShow] = useState<string[]>([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [columnsName, setColumnsName] = useState('');
+
+  const appConfig = useAppSelector((state) => state.appReducer);
+  const dispath = useAppDispatch();
+  const { isPopupOpen } = appConfig;
   const fetchConnectors = async () => {
     try {
       const response = await axios.get(config.kafkaConnect);
@@ -90,7 +95,6 @@ function ReplicaIndexPage() {
     axios.get(configUrl).then((response) => {
       setPopupContent(response.data);
     });
-    setShowPopup(true);
   };
 
   const handleGetErr = async (tableName: string) => {
@@ -98,7 +102,7 @@ function ReplicaIndexPage() {
     axios.get(errUrl).then((res) => {
       setPopupContent(res.data['tasks']['0']);
     });
-    setShowPopup(true);
+    dispath(handleOpenPopup(!isPopupOpen, 'aaaa'));
   };
   const handleFixTimestampWithZ = () => {
     setPopupContent((prevContent: any) => {
@@ -140,12 +144,9 @@ function ReplicaIndexPage() {
           </h1>
         </div>
         {isChecked === false && (
-          <a
-            href='/create-connector'
-            className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-3xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'
-          >
+          <div className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-3xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'>
             Create Source
-          </a>
+          </div>
         )}
       </div>
       <div className='shadow-lg rounded-lg overflow-hidden  mt-5'>
@@ -244,7 +245,7 @@ function ReplicaIndexPage() {
           </tbody>
         </table>
       </div>
-      <PanelPopup isShow={showPopup} onClose={() => setShowPopup(false)}>
+      <PanelPopup>
         {popupContent['trace'] ? (
           <>
             <h1 className='text-red-500'>Error</h1>
