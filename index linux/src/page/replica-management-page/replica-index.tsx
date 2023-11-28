@@ -16,46 +16,27 @@ import {
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import PanelPopup from 'src/components/panel-popup/panel-popup';
-import { handleOpenPopup } from 'src/redux/actions/app-action';
-import { useAppDispatch, useAppSelector } from 'src/redux/hook';
+import { useSelector } from 'react-redux';
+import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
+import { fetchConnectors } from 'src/redux/connector-slice';
+import { ConnectorSelector, useAppDispatch } from 'src/redux/redux-hook';
+import LoadingComponent from 'src/components/loading/loading';
 const cx = classNames.bind(styles);
 function ReplicaIndexPage() {
-  const [connectors, setConnectors] = useState<Topic[]>([]);
   const [isChecked, setIsChecked] = useState(false);
-  const [loader, setLoader] = useState('loading');
-  const [database, setDatabase] = useState(['']);
   const [popupContent, setPopupContent] = useState<any>({});
   const [bodyShow, setBodyShow] = useState<string[]>([]);
   const [columnsName, setColumnsName] = useState('');
-
-  const appConfig = useAppSelector((state) => state.appReducer);
+  const {
+    connectors,
+    databases: database,
+    status,
+  } = useSelector(ConnectorSelector);
   const dispath = useAppDispatch();
-  const { isPopupOpen } = appConfig;
-  const fetchConnectors = async () => {
-    try {
-      const response = await axios.get(config.kafkaConnect);
-      const connectors = [...response.data];
-      const tempConnectors = await Promise.all(
-        connectors.map(async (connector) => {
-          const statusUrl = `${config.kafkaConnect}/${connector}/status`;
-          const statusResponse = await axios.get(statusUrl);
-          return statusResponse.data;
-        })
-      );
-      setConnectors(tempConnectors);
-      const databases = tempConnectors
-        .filter((connector) => connector.type === 'sink')
-        .map((connector) => connector.name.split('-')[1]);
-      setDatabase(Array.from(new Set(databases)));
-      setLoader('success');
-    } catch (error) {
-      console.error(error);
-    }
-  };
   useEffect(() => {
-    fetchConnectors();
+    dispath(fetchConnectors());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const handleClick = (table: string) => {
     if (bodyShow.includes(table)) {
       setBodyShow(bodyShow.filter((t) => t !== table));
@@ -69,7 +50,6 @@ function ReplicaIndexPage() {
       .map((connector) =>
         axios.post(`${config.kafkaConnect}/${connector.name}/restart`)
       );
-
     axios
       .all(restartPromises)
       .then(() => {
@@ -95,6 +75,7 @@ function ReplicaIndexPage() {
     axios.get(configUrl).then((response) => {
       setPopupContent(response.data);
     });
+    dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
 
   const handleGetErr = async (tableName: string) => {
@@ -102,7 +83,7 @@ function ReplicaIndexPage() {
     axios.get(errUrl).then((res) => {
       setPopupContent(res.data['tasks']['0']);
     });
-    dispath(handleOpenPopup(!isPopupOpen, 'aaaa'));
+    dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
   const handleFixTimestampWithZ = () => {
     setPopupContent((prevContent: any) => {
@@ -128,7 +109,7 @@ function ReplicaIndexPage() {
       });
     // console.log(popupContent);
   };
-  return loader === 'success' ? (
+  return status === 'success' ? (
     <div className={cx('container')}>
       <div className='mt-10'></div>
       <div className='flex items-center justify-between'>
@@ -174,7 +155,7 @@ function ReplicaIndexPage() {
               )}
             {isChecked === true &&
               database.map((database, index) => {
-                const filterConnectors = connectors
+                const filterConnectors = [...connectors]
                   .sort((a, b) =>
                     a.tasks[0].state.localeCompare(b.tasks[0].state)
                   )
@@ -279,10 +260,8 @@ function ReplicaIndexPage() {
         )}
       </PanelPopup>
     </div>
-  ) : loader === 'loading' ? (
-    <div className={cx('container')}>
-      <span className={cx('loader')} />
-    </div>
+  ) : status === 'loading' ? (
+    <LoadingComponent />
   ) : (
     <ErrorPage />
   );
@@ -396,7 +375,7 @@ interface Task {
   worker_id: string;
 }
 
-interface Topic {
+export interface Topic {
   name: string;
   connector: Connector;
   tasks: Task[];

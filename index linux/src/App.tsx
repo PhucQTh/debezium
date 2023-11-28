@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DefaultLayout from 'src/components/layout/default';
 import HomePage from './page/homepage';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,7 +9,17 @@ import ReplicaIndexPage from './page/replica-management-page/replica-index';
 import ConnectorCreate from './page/replica-management-page/replica-connector-create';
 import DatabaseIndexPage from './page/database-management/database-index';
 import LoginPage from './page/auth/login-page';
+import { useAppDispatch } from './redux/redux-hook';
+import appSlice from './redux/app-slice';
+import { hostConfig } from './config/config';
 const App: React.FC = () => {
+  // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
+  const dispath = useAppDispatch();
+  useEffect(() => {
+    !localStorage.getItem('environment') &&
+      dispath(appSlice.actions.setEnv(hostConfig[0].name));
+  });
+  //==========================================================================
   return (
     <BrowserRouter>
       <DefaultLayout>

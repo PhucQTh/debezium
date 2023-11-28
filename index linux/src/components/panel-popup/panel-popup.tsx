@@ -3,23 +3,27 @@ import styles from 'src/components/panel-popup/panel-popup.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { useAppDispatch, useAppSelector } from 'src/redux/hook';
-import { handleOpenPopup } from 'src/redux/actions/app-action';
+import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
+import { useDispatch, useSelector } from 'react-redux';
+import { popupSelector } from 'src/redux/redux-hook';
 const cx = classNames.bind(styles);
 type PopupProps = {
   children: ReactNode;
 };
 
 const PanelPopup = ({ children }: PopupProps) => {
+  const dispath = useDispatch();
+  const popupStatus = useSelector(popupSelector);
   const handleButtonClick = () => {
-    dispath(handleOpenPopup(!isPopupOpen));
+    dispath(popupSlice.actions.setPopupStatus(PopupStatus.close));
   };
-  const appConfig = useAppSelector((state) => state.appReducer);
-  const dispath = useAppDispatch();
-  const { isPopupOpen } = appConfig;
 
   return (
-    <div className={isPopupOpen ? cx('wrapper') : cx('wrapper-hide')}>
+    <div
+      className={
+        popupStatus === PopupStatus.open ? cx('wrapper') : cx('wrapper-hide')
+      }
+    >
       <div className={cx('popup')}>
         <div className={cx('close')} onClick={handleButtonClick}>
           <label className={cx('tooltip')}>Close</label>
