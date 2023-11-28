@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from 'src/page/homepage.module.scss';
-import { config } from 'src/config/config';
+// import { config } from 'src/config/config';
 const cx = classNames.bind(styles);
 const HomePage = () => {
   return (
@@ -17,6 +17,7 @@ const HomePage = () => {
     </div>
   );
 };
+const config = JSON.parse(localStorage.getItem('config') || '{}');
 const homeItem = [
   {
     title: 'Portainer',

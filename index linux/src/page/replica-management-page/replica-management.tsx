@@ -6,8 +6,8 @@ import styles from 'src/page/replica-management-page/replica-management.module.s
 import ErrorPage from 'src/components/error-page/error-page';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { config } from 'src/config/config';
 import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
+const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
   const { connector } = useParams<{ connector: string }>();

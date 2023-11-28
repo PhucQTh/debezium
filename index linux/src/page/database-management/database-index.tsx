@@ -1,10 +1,10 @@
 import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { config } from 'src/config/config';
 import { numberWithCommas } from 'src/config/ultis';
 import styles from 'src/page/database-management/database-management.module.scss';
 const cx = classNames.bind(styles);
+const config = JSON.parse(localStorage.getItem('config') || '{}');
 const servers = ['production', 'sft'];
 interface IBinlog {
   Log_name: string;

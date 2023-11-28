@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from 'src/page/replica-management-page/replica-management.module.scss';
 import { toast } from 'react-toastify';
 import ErrorPage from 'src/components/error-page/error-page';
-import { config } from 'src/config/config';
 import {
   faArrowRightArrowLeft,
   faCheckCircle,
@@ -22,6 +21,7 @@ import { fetchConnectors } from 'src/redux/connector-slice';
 import { ConnectorSelector, useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 const cx = classNames.bind(styles);
+const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
   const [isChecked, setIsChecked] = useState(false);
   const [popupContent, setPopupContent] = useState<any>({});
