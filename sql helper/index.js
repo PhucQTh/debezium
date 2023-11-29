@@ -7,7 +7,6 @@ const {
   sftBackupConfig,
 } = require('./config');
 const cors = require('cors');
-
 const app = express();
 
 app.use(cors());
@@ -84,12 +83,25 @@ app.get('/api/binlog/:server/status', async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    throw err;
+    res.status(500).send('Internal Server Error');
   }
 });
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
+});
+
+const axios = require('axios');
+
+app.get('/api/connectors', async (req, res) => {
+  try {
+    const { api } = req.query;
+    const response = await axios.get(api);
+    console.log(`GET: ${api}`);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.listen(4000, () => console.log('App listening on port 4000'));
