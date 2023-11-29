@@ -27,9 +27,11 @@ function ReplicaManagementPage() {
   };
   const fetchData = async () => {
     try {
+      const { kafkaConnect, sqlHelperUrl } = config;
+      const topicUrl = `${kafkaConnect}/${connector}/topics`;
       const [topicsResponse, connectorsResponse] = await Promise.all([
-        axios.get(`${config.kafkaConnect}/${connector}/topics`),
-        axios.get(config.kafkaConnect),
+        axios.get(`${sqlHelperUrl}/connectors?api=${topicUrl}`),
+        axios.get(`${sqlHelperUrl}/connectors?api=${kafkaConnect}`),
       ]);
 
       const { topics } = topicsResponse.data[connector || ''];

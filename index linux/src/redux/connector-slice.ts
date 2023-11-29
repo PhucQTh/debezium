@@ -37,12 +37,17 @@ const connectorsSlice = createSlice({
 export const fetchConnectors = createAsyncThunk(
   'connectors/fetchConnectors',
   async () => {
-    const response = await axios.get(config.kafkaConnect);
+    const { kafkaConnect, sqlHelperUrl } = config;
+    const response = await axios.get(
+      `${sqlHelperUrl}/connectors?api=${kafkaConnect}`
+    );
     const connectors = [...response.data];
     const tempConnectors = await Promise.all(
       connectors.map(async (connector) => {
         const statusUrl = `${config.kafkaConnect}/${connector}/status`;
-        const statusResponse = await axios.get(statusUrl);
+        const statusResponse = await axios.get(
+          `${sqlHelperUrl}/connectors?api=${statusUrl}`
+        );
         return statusResponse.data;
       })
     );
