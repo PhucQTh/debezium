@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import DefaultLayout from 'src/components/layout/default';
 import HomePage from './page/homepage';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,20 +12,29 @@ import LoginPage from './page/auth/login-page';
 import { useAppDispatch } from './redux/redux-hook';
 import appSlice from './redux/app-slice';
 import { hostConfig } from './config/config';
+import { ProtectedRoute } from './page/auth/protect';
 const App: React.FC = () => {
   // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
   const dispath = useAppDispatch();
-  useEffect(() => {
-    !localStorage.getItem('environment') &&
-      dispath(appSlice.actions.setEnv(hostConfig[0].name));
-  });
+  !localStorage.getItem('environment') &&
+    dispath(appSlice.actions.setEnv(hostConfig[0].name));
   //==========================================================================
   return (
     <BrowserRouter>
       <DefaultLayout>
         <Routes>
           {routes.map((route, key) => (
-            <Route key={key} path={route.path} element={<route.element />} />
+            <Route
+              key={key}
+              path={route.path}
+              element={
+                route.protect === true ? (
+                  <ProtectedRoute>{<route.element />}</ProtectedRoute>
+                ) : (
+                  <route.element />
+                )
+              }
+            />
           ))}
         </Routes>
         <ToastContainer
@@ -46,31 +55,36 @@ const App: React.FC = () => {
 };
 
 const routes = [
-  { name: 'Home', path: '/', element: HomePage },
+  { name: 'Home', path: '/', element: HomePage, protect: true },
   {
     name: 'Replica Index',
     path: '/replica-management',
     element: ReplicaIndexPage,
+    protect: true,
   },
   {
     name: 'Replica Management',
     path: '/replica-management/:connector',
     element: ReplicaManagementPage,
+    protect: true,
   },
   {
     name: 'Create Connector',
     path: '/create-connector',
     element: ConnectorCreate,
+    protect: true,
   },
   {
     name: 'Database Management',
     path: '/database-management',
     element: DatabaseIndexPage,
+    protect: true,
   },
   {
     name: 'Login',
     path: '/login',
     element: LoginPage,
+    protect: false,
   },
 ];
 export default App;

@@ -17,7 +17,7 @@ const HomePage = () => {
     </div>
   );
 };
-const config = JSON.parse(localStorage.getItem('config') || '{}');
+const config = JSON.parse(localStorage.getItem('config')!) || {};
 const homeItem = [
   {
     title: 'Portainer',

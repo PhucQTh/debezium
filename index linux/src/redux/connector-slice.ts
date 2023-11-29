@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Topic } from 'src/page/replica-management-page/replica-index';
-import { hostConfig } from 'src/config/config';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const connectorsSlice = createSlice({
   name: 'connectors',

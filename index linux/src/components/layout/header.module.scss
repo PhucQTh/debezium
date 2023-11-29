@@ -128,3 +128,27 @@
 .header-menu {
     display: flex;
 }
+
+.btn-logout {
+    margin-left: 30px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    padding-block: 5px;
+    padding-inline: 10px;
+    border-radius: 8px;
+    box-shadow: rgba(234, 4, 4, 0.24) 0px 3px 8px;
+}
+
+.select-environment {
+    box-shadow: rgba(131, 120, 120, 0.24) 0px 3px 8px;
+    padding-block: 5px;
+    padding-inline: 10px;
+    border-radius: 8px;
+    border: 1px solid #f1f0f0;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+}

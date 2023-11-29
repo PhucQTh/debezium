@@ -1,14 +1,17 @@
 .container {
-    width: 1200px;
+    width: 1300px;
     margin: 0 auto;
     justify-content: center;
+    padding-inline: 50px;
+    padding-bottom: 30px;
+    overflow: hidden;
 }
 
 .wrapper {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-top: 30px;
+    // padding-top: 30px;
 }
 
 .server-list {

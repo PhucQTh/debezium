@@ -8,11 +8,15 @@ import { appSelector, useAppDispatch } from 'src/redux/redux-hook';
 const cx = classNames.bind(styles);
 function Header() {
   const dispath = useAppDispatch();
-  const env = useSelector(appSelector).environment;
+  const { environment, auth } = useSelector(appSelector);
   const navigate = useNavigate();
   const handleChange = (value: string) => {
     dispath(appSlice.actions.setEnv(value));
     navigate(0);
+  };
+  const handleLogout = () => {
+    dispath(appSlice.actions.setLogout());
+    navigate('/login');
   };
   return (
     <>
@@ -36,20 +40,27 @@ function Header() {
               />
             </Link>
           </div>
-          <div className={cx('header-right')}>
-            <select
-              onChange={(e) => {
-                handleChange(e.target.value);
-              }}
-              value={env.name}
-            >
-              {hostConfig.map((item) => (
-                <option key={item.name} value={item.name}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {auth && (
+            <div className={cx('header-right')}>
+              <select
+                className={cx('select-environment')}
+                onChange={(e) => {
+                  handleChange(e.target.value);
+                }}
+                value={environment.name}
+              >
+                {hostConfig.map((item) => (
+                  <option key={item.name} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
+              <div className={cx('btn-logout')} onClick={handleLogout}>
+                Logout
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
