@@ -6,7 +6,11 @@ import styles from 'src/page/replica-management-page/replica-management.module.s
 import ErrorPage from 'src/components/error-page/error-page';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faHardDrive,
+  faLink,
+  faLinkSlash,
+} from '@fortawesome/free-solid-svg-icons';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
@@ -100,14 +104,12 @@ function ReplicaManagementPage() {
             return (
               <div key={index}>
                 <div
-                  className={cx('database-container')}
+                  className={cx('container-header')}
                   onClick={() => {
                     handleClick(database);
                   }}
                 >
-                  <h1>
-                    {index + 1}. {database}
-                  </h1>
+                  {index + 1}. {database}
                   <div>{`topics: ${filteredTopics.length}`}</div>
                   {countTopics(filteredTopics, '') > 0 && (
                     <span className={cx('red-dot')}>
@@ -117,42 +119,47 @@ function ReplicaManagementPage() {
                 </div>
                 {bodyShow.includes(database) && (
                   <div className={cx('table-container')}>
-                    <table className='w-full table-fixed bg-white'>
-                      <tbody>
-                        {filteredTopics.map((topic: ITopic, index) => {
-                          return (
-                            <tr key={index}>
-                              <td className='py-4 px-6 border-b border-gray-200'>
-                                {`${index + 1}-${topic.table}`}
-                              </td>
-                              <td className='py-4 px-6 border-b border-gray-200 text-center'>
-                                {topic.sink !== '' ? (
-                                  <FontAwesomeIcon
-                                    icon={faLink}
-                                    className='text-green-500 cursor-pointer'
-                                  />
-                                ) : (
-                                  <FontAwesomeIcon
-                                    icon={faLinkSlash}
-                                    className='text-red-500 cursor-pointer'
-                                  />
-                                )}
-                              </td>
-                              <td className='py-4 px-6 border-b border-gray-200 text-center'>
-                                <a
-                                  href={link + topic.topic}
-                                  target='_blank'
-                                  rel='noopener noreferrer'
-                                  className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full'
-                                >
-                                  View in Kafka
-                                </a>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                    {filteredTopics.map((topic: ITopic, index) => {
+                      return (
+                        <div key={index} className={cx('table-content')}>
+                          {`${index + 1}-${topic.table}`}
+                          <div className={cx('status')}>
+                            <div className={cx('status-container')}>
+                              {topic.sink !== '' ? (
+                                <FontAwesomeIcon
+                                  icon={faLink}
+                                  className='text-green-500 cursor-pointer'
+                                />
+                              ) : (
+                                <FontAwesomeIcon
+                                  icon={faLinkSlash}
+                                  className='text-red-500 cursor-pointer'
+                                />
+                              )}
+                              {/* {topic.sink !== '' ? (
+                                    <FontAwesomeIcon
+                                      icon={faHardDrive}
+                                      className='text-green-500 cursor-pointer'
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon
+                                      icon={faHardDrive}
+                                      className='text-red-500 cursor-pointer'
+                                    />
+                                  )} */}
+                            </div>
+                            <a
+                              href={link + topic.topic}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full'
+                            >
+                              View in Kafka
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

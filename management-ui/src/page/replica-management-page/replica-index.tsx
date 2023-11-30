@@ -20,6 +20,7 @@ import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
 import { fetchConnectors } from 'src/redux/connector-slice';
 import { ConnectorSelector, useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
+import { useNavigate } from 'react-router-dom';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -130,102 +131,81 @@ function ReplicaIndexPage() {
           </div>
         )}
       </div>
-      <div className='shadow-lg rounded-lg overflow-hidden  mt-5'>
-        <table className='w-full table-fixed'>
-          <thead>
-            <tr className='bg-gray-300'>
-              <th className='w-3/5 py-4 px-6 text-left text-gray-600 font-bold uppercase'>
-                Connector Name
-              </th>
-              <th
-                className='w-1/5 py-4 px-6 text-center text-gray-600 font-bold uppercase'
-                colSpan={2}
-              >
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className={cx('table-content')}>
-            {isChecked === false &&
-              connectors.map(
-                (connector, key) =>
-                  connector.type === 'source' && (
-                    <TableContent topic={connector} key={key} />
-                  )
-              )}
-            {isChecked === true &&
-              database.map((database, index) => {
-                const filterConnectors = [...connectors]
-                  .sort((a, b) =>
-                    a.tasks[0].state.localeCompare(b.tasks[0].state)
-                  )
-                  .filter(
-                    (connector) =>
-                      connector.type === 'sink' &&
-                      connector.name.includes(database)
-                  );
-                const failedConnectors = filterConnectors.filter(
-                  (connector) => connector.tasks[0].state === 'FAILED'
-                );
-                return (
-                  <>
-                    <tr
-                      key={index}
-                      className='cursor-pointer bg-gray-100 hover:bg-gray-200'
+      <>
+        {isChecked === false &&
+          connectors.map(
+            (connector, key) =>
+              connector.type === 'source' && (
+                <SourceContent topic={connector} key={key} />
+              )
+          )}
+        {isChecked === true &&
+          database.map((database, index) => {
+            const filterConnectors = [...connectors]
+              .sort((a, b) => a.tasks[0].state.localeCompare(b.tasks[0].state))
+              .filter(
+                (connector) =>
+                  connector.type === 'sink' && connector.name.includes(database)
+              );
+            const failedConnectors = filterConnectors.filter(
+              (connector) => connector.tasks[0].state === 'FAILED'
+            );
+            return (
+              <div key={index}>
+                <div
+                  className={cx([
+                    'container-header',
+                    bodyShow.includes(database) ? 'active' : '',
+                  ])}
+                  onClick={() => {
+                    handleClick(database);
+                  }}
+                >
+                  {`${database} - Total: ${filterConnectors.length}`}
+                  {` - Failed: ${failedConnectors.length}`}
+                  <div>
+                    <button
+                      type='button'
+                      className='text-red-500 text-3xl  font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg mr-4'
+                      onClick={() => {
+                        handleDeleteAll(filterConnectors);
+                      }}
                     >
-                      <td
-                        colSpan={1}
-                        className='py-4 px-6'
-                        onClick={() => {
-                          handleClick(database);
-                        }}
-                      >
-                        {`${database} - Total: ${filterConnectors.length}`}
-                        <span>{` - Failed: ${failedConnectors.length}`}</span>
-                      </td>
-                      <td
-                        colSpan={2}
-                        className='py-4 px-6 justify-center text-center'
-                      >
-                        <button
-                          type='button'
-                          className='text-red-500 text-3xl  font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg mr-4'
-                          onClick={() => {
-                            handleDeleteAll(filterConnectors);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTrashCan} />
-                        </button>
-                        <button
-                          type='button'
-                          className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg'
-                          onClick={() => {
-                            handleRestartAll(filterConnectors);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faRotateRight} />
-                        </button>
-                      </td>
-                    </tr>
-                    {bodyShow.includes(database) &&
-                      connectors.map(
-                        (connector, key) =>
-                          connector.type === 'sink' &&
-                          connector.name.includes(database) && (
-                            <TableContent
-                              topic={connector}
-                              isSub={true}
-                              getConfig={handleGetConfig}
-                              getErr={handleGetErr}
-                            />
-                          )
-                      )}
-                  </>
-                );
-              })}
-          </tbody>
-        </table>
-      </div>
+                      <FontAwesomeIcon icon={faTrashCan} />
+                    </button>
+                    <button
+                      type='button'
+                      className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg'
+                      onClick={() => {
+                        handleRestartAll(filterConnectors);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faRotateRight} />
+                    </button>
+                  </div>
+                </div>
+                {bodyShow.includes(database) && (
+                  <div className={cx('table-container')}>
+                    {connectors.map(
+                      (connector, key) =>
+                        connector.type === 'sink' &&
+                        connector.name.includes(database) && (
+                          <SinkContent
+                            key={key}
+                            topic={connector}
+                            isSub={true}
+                            getConfig={handleGetConfig}
+                            getErr={handleGetErr}
+                          />
+                        )
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </>
+
       <PanelPopup>
         {popupContent['trace'] ? (
           <>
@@ -266,7 +246,7 @@ function ReplicaIndexPage() {
     <ErrorPage />
   );
 }
-const TableContent = ({
+const SinkContent = ({
   topic,
   isSub,
   getConfig,
@@ -278,84 +258,94 @@ const TableContent = ({
   getErr?: (str: string) => void;
 }) => {
   return (
-    <tr key={topic.name} className={`cursor-pointer hover:bg-gray-100`}>
-      <td
-        className={`w-3/5 py-4 text-left   ${isSub ? 'px-10' : 'px-6'} ${
-          topic.tasks[0].state !== 'RUNNING' ? 'text-red-500' : 'text-gray-600'
-        }`}
-      >
-        {topic.name}
-        {isSub && topic.tasks[0].state !== 'RUNNING' && (
-          <>
-            <button
-              onClick={() => {
-                axios
-                  .post(`${config.kafkaConnect}/${topic.name}/restart`)
-                  .then(() => {
-                    toast.success('Connector is restarted successfully');
-                    // fetchConnectors();
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }}
-              className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
-            >
-              <FontAwesomeIcon icon={faRotateRight} />
-            </button>
-            <button
-              onClick={() => {
-                getErr && getErr(topic.name);
-              }}
-              className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
-            >
-              <FontAwesomeIcon icon={faInfo} />
-            </button>
-            <button
-              onClick={() => {
-                getConfig && getConfig(topic.name);
-              }}
-              className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
-            >
-              <FontAwesomeIcon icon={faFileLines} />
-            </button>
-            <button
-              onClick={() => {
-                getConfig && handleDelete(topic.name);
-              }}
-              className='text-red-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg ml-3'
-            >
-              <FontAwesomeIcon icon={faTrashCan} />
-            </button>
-          </>
+    <div key={topic.name} className={cx('table-content')}>
+      {topic.name}
+      {isSub && topic.tasks[0].state !== 'RUNNING' && (
+        <>
+          <button
+            onClick={() => {
+              axios
+                .post(`${config.kafkaConnect}/${topic.name}/restart`)
+                .then(() => {
+                  toast.success('Connector is restarted successfully');
+                  // fetchConnectors();
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
+            }}
+            className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
+          >
+            <FontAwesomeIcon icon={faRotateRight} />
+          </button>
+          <button
+            onClick={() => {
+              getErr && getErr(topic.name);
+            }}
+            className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
+          >
+            <FontAwesomeIcon icon={faInfo} />
+          </button>
+          <button
+            onClick={() => {
+              getConfig && getConfig(topic.name);
+            }}
+            className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
+          >
+            <FontAwesomeIcon icon={faFileLines} />
+          </button>
+          <button
+            onClick={() => {
+              getConfig && handleDelete(topic.name);
+            }}
+            className='text-red-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg ml-3'
+          >
+            <FontAwesomeIcon icon={faTrashCan} />
+          </button>
+        </>
+      )}
+      <span
+        className={cx(
+          topic.tasks[0].state === 'RUNNING' ? 'success-badges' : 'error-badges'
         )}
-      </td>
-      <td className='w-1/5 py-4 px-6  text-center text-gray-600'>
-        <span
-          className={cx(
-            topic.tasks[0].state === 'RUNNING'
-              ? 'success-badges'
-              : 'error-badges'
-          )}
-        >
-          <FontAwesomeIcon
-            icon={
-              topic.tasks[0].state === 'RUNNING' ? faCheckCircle : faXmarkCircle
-            }
-            className=' mr-2'
-          />
-          {topic.tasks[0].state}
-        </span>
-      </td>
-      <td className='w-1/5 py-4 px-6 text-center text-gray-600'>
-        <a
-          href={`/replica-management/${topic.name}`}
-          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mx-2'
-        >
-          View Detail
-        </a>
-      </td>
-    </tr>
+      >
+        <FontAwesomeIcon
+          icon={
+            topic.tasks[0].state === 'RUNNING' ? faCheckCircle : faXmarkCircle
+          }
+          className=' mr-2'
+        />
+        {topic.tasks[0].state}
+      </span>
+    </div>
+  );
+};
+const SourceContent = ({ topic }: { topic: Topic }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      key={topic.name}
+      className={cx('source-content')}
+      onClick={() => {
+        navigate(`/replica-management/${topic.name}`);
+      }}
+    >
+      {topic.name}
+      <span
+        className={cx(
+          topic.tasks[0].state === 'RUNNING' ? 'success-badges' : 'error-badges'
+        )}
+      >
+        <FontAwesomeIcon
+          icon={
+            topic.tasks[0].state === 'RUNNING' ? faCheckCircle : faXmarkCircle
+          }
+          className=' mr-2'
+        />
+        {topic.tasks[0].state}
+      </span>
+    </div>
   );
 };
 const handleDelete = async (table: string) => {
