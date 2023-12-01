@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import { hostConfig } from 'src/config/config';
 
@@ -33,4 +34,30 @@ export default createSlice({
       localStorage.removeItem('auth');
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(login.fulfilled, (state, action) => {
+        console.log(action.payload);
+        // state.auth = 'OK';
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.auth = null;
+      });
+  },
 });
+
+export const login = createAsyncThunk(
+  'app/login',
+  async ({ username, password }: { username: string; password: string }) => {
+    const res = await axios.post(
+      '/api/login',
+      { username, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return res.data;
+  }
+);
