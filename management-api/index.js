@@ -8,6 +8,9 @@ const {
 } = require('./config');
 const cors = require('cors');
 const app = express();
+var jwt = require('jsonwebtoken');
+const axios = require('axios');
+const config = require('./config');
 
 app.use(cors());
 
@@ -91,8 +94,6 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-const axios = require('axios');
-
 app.get('/api/connectors', async (req, res) => {
   try {
     const { api } = req.query;
@@ -103,5 +104,41 @@ app.get('/api/connectors', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+app.use(express.json({ type: '*/*' }));
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (username === 'admin' && password === 'admin') {
+      const data = {
+        username,
+        fullname: 'Administrator',
+        role: 'admin',
+      };
+      const accessToken = jwt.sign(data, config.TOKEN_SECRET, {
+        expiresIn: '1d',
+      });
+      res.send({ authorization: 'success', token: accessToken });
+    } else {
+      res.send({ authorization: 'failed', message: 'Invalid credentials' });
+    }
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+    throw error;
+  }
+});
+
+function authenToken(req, res, next) {
+  const authorizationClient = req.headers['authorization'];
+  const token = authorizationClient && authorizationClient.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  try {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    next();
+  } catch (e) {
+    return res.sendStatus(403);
+  }
+}
 
 app.listen(4000, () => console.log('App listening on port 4000'));

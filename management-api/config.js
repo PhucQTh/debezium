@@ -23,4 +23,5 @@ module.exports = {
     user: 'root',
     password: 'P@ss_2018',
   },
+  TOKEN_SECRET: 'ACCA@2023',
 };
