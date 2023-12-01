@@ -324,14 +324,6 @@ const SinkContent = ({
         />
         {topic.tasks[0].state}
       </span>
-      <button
-        onClick={() => {
-          getErr && getErr(topic.name);
-        }}
-        className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
-      >
-        <FontAwesomeIcon icon={faInfo} />
-      </button>
     </div>
   );
 };
