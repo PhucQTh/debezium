@@ -1,10 +1,9 @@
-import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { numberWithCommas } from 'src/config/ultis';
+import { getAPI, numberWithCommas } from 'src/config/ultis';
 import styles from 'src/page/database-management/database-management.module.scss';
 const cx = classNames.bind(styles);
-const config = JSON.parse(localStorage.getItem('config') || '{}');
+const { apiURL } = JSON.parse(localStorage.getItem('config') || '{}');
 const servers = ['production', 'sft'];
 interface IBinlog {
   Log_name: string;
@@ -13,17 +12,10 @@ interface IBinlog {
 const DatabaseIndexPage = () => {
   const [data, setData] = useState<IBinlog[]>([]);
   const fetchData = (server: string) => {
-    const token = `Bearer ${localStorage.getItem('token')}`;
     try {
-      axios
-        .get(`${config.sqlHelperUrl}/binlog/${server}/status`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          setData(response.data);
-        });
+      getAPI(`${apiURL}/binlog/${server}/status`).then((response) => {
+        setData(response.data);
+      });
     } catch (error) {
       console.error(error);
     }

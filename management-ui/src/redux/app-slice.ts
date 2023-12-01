@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
 import { hostConfig } from 'src/config/config';
+import { postAPI } from 'src/config/ultis';
 
 export default createSlice({
   name: 'app',
@@ -43,15 +43,10 @@ export default createSlice({
 export const login = createAsyncThunk(
   'app/login',
   async ({ username, password }: { username: string; password: string }) => {
-    const res = await axios.post(
-      'http://192.168.109.42:4000/api/login',
-      { username, password },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const res = await postAPI('http://192.168.109.42:4000/api/login', {
+      username,
+      password,
+    });
     return res.data;
   }
 );

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import classNames from 'classnames/bind';
@@ -11,6 +10,7 @@ import {
   faLink,
   faLinkSlash,
 } from '@fortawesome/free-solid-svg-icons';
+import { getAPI, postAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
@@ -31,11 +31,11 @@ function ReplicaManagementPage() {
   };
   const fetchData = async () => {
     try {
-      const { kafkaConnect, sqlHelperUrl } = config;
+      const { kafkaConnect, apiURL } = config;
       const topicUrl = `${kafkaConnect}/${connector}/topics`;
       const [topicsResponse, connectorsResponse] = await Promise.all([
-        axios.get(`${sqlHelperUrl}/connectors?api=${topicUrl}`),
-        axios.get(`${sqlHelperUrl}/connectors?api=${kafkaConnect}`),
+        getAPI(topicUrl, true),
+        getAPI(kafkaConnect, true),
       ]);
 
       const { topics } = topicsResponse.data[connector || ''];
@@ -175,9 +175,7 @@ function ReplicaManagementPage() {
   );
 }
 const createSinkConnector = async (data: string[], connector: string) => {
-  const sqlHepperApiURL = `${
-    config.sqlHelperUrl
-  }/get-pk/${connector.toLowerCase()}/`;
+  const sqlHepperApiURL = `${config.apiURL}/get-pk/${connector.toLowerCase()}/`;
   const uniqueList = Array.from(
     new Set(data.map((item) => item.split('.')[1]))
   );
@@ -198,7 +196,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
 
   await Promise.all(
     uniqueList.map(async (db) => {
-      const response = await axios.get(`${sqlHepperApiURL}${db}`);
+      const response = await getAPI(`${sqlHepperApiURL}${db}`);
       await Promise.all(
         response.data.map(async (item: any) => {
           const connectorName = `sink-${db}-${item['TABLE_NAME']}`;
@@ -234,9 +232,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
             },
           };
           try {
-            await axios.post(config.kafkaConnect, body, {
-              headers: { 'Content-Type': 'application/json' },
-            });
+            await postAPI(config.kafkaConnect, body, true);
             toast.success(`${item['TABLE_NAME']} is created successfully`, {
               position: 'top-right',
               autoClose: 5000,

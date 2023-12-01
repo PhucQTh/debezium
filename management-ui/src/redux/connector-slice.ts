@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { getAPI } from 'src/config/ultis';
 import { Topic } from 'src/page/replica-management-page/replica-index';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const connectorsSlice = createSlice({
@@ -37,28 +38,13 @@ const connectorsSlice = createSlice({
 export const fetchConnectors = createAsyncThunk(
   'connectors/fetchConnectors',
   async () => {
-    const { kafkaConnect, sqlHelperUrl } = config;
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    const response = await axios.get(
-      `${sqlHelperUrl}/connectors?api=${kafkaConnect}`,
-      {
-        headers: {
-          Authorization: token,
-        },
-      }
-    );
+    const { kafkaConnect } = config;
+    const response = await getAPI(kafkaConnect, true);
     const connectors = [...response.data];
     const tempConnectors = await Promise.all(
       connectors.map(async (connector) => {
         const statusUrl = `${config.kafkaConnect}/${connector}/status`;
-        const statusResponse = await axios.get(
-          `${sqlHelperUrl}/connectors?api=${statusUrl}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+        const statusResponse = await getAPI(statusUrl, true);
         return statusResponse.data;
       })
     );

@@ -21,6 +21,7 @@ import { fetchConnectors } from 'src/redux/connector-slice';
 import { ConnectorSelector, useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
+import { getAPI, postAPI } from 'src/config/ultis';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -71,17 +72,18 @@ function ReplicaIndexPage() {
         console.error(error);
       });
   };
+  const { kafkaConnect } = config;
   const handleGetConfig = async (tableName: string) => {
-    const configUrl = `${config.kafkaConnect}/${tableName}/config`;
-    axios.get(configUrl).then((response) => {
-      setPopupContent(response.data);
+    const configUrl = `${kafkaConnect}/${tableName}/config`;
+    getAPI(configUrl, true).then((res) => {
+      setPopupContent(res.data);
     });
     dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
 
   const handleGetErr = async (tableName: string) => {
-    const errUrl = `${config.kafkaConnect}/${tableName}/status`;
-    axios.get(errUrl).then((res) => {
+    const errUrl = `${kafkaConnect}/${tableName}/status`;
+    getAPI(errUrl, true).then((res) => {
       setPopupContent(res.data['tasks']['0']);
     });
     dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
@@ -257,6 +259,19 @@ const SinkContent = ({
   getConfig?: (str: string) => void;
   getErr?: (str: string) => void;
 }) => {
+  const dispath = useAppDispatch();
+  const handleRestart = async () => {
+    const { kafkaConnect, apiURL } = config;
+    const url = `${kafkaConnect}/${topic.name}/tasks/0/restart`;
+    postAPI(url, true)
+      .then(() => {
+        toast.success('Connector is restarted successfully');
+        dispath(fetchConnectors());
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
   return (
     <div key={topic.name} className={cx('table-content')}>
       {topic.name}
@@ -264,15 +279,7 @@ const SinkContent = ({
         <>
           <button
             onClick={() => {
-              axios
-                .post(`${config.kafkaConnect}/${topic.name}/restart`)
-                .then(() => {
-                  toast.success('Connector is restarted successfully');
-                  // fetchConnectors();
-                })
-                .catch((error) => {
-                  console.error(error);
-                });
+              handleRestart();
             }}
             className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
           >
@@ -317,6 +324,14 @@ const SinkContent = ({
         />
         {topic.tasks[0].state}
       </span>
+      <button
+        onClick={() => {
+          getErr && getErr(topic.name);
+        }}
+        className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg ml-3'
+      >
+        <FontAwesomeIcon icon={faInfo} />
+      </button>
     </div>
   );
 };
