@@ -38,7 +38,7 @@ app.get('/api/get-pk/:server/:dbname', (req, res) => {
   }
 });
 
-app.get('/api/binlog/:server/status', async (req, res) => {
+app.get('/api/binlog/:server/status', authenToken, async (req, res) => {
   const query = 'SHOW BINARY LOGS;';
   const server = req.params.server;
 
@@ -136,7 +136,7 @@ function authenToken(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   try {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    jwt.verify(token, config.TOKEN_SECRET);
     next();
   } catch (e) {
     return res.sendStatus(403);
