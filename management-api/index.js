@@ -119,7 +119,9 @@ app.post('/api/login', async (req, res) => {
       });
       res.send({ authorization: 'success', token: accessToken });
     } else {
-      res.send({ authorization: 'failed', message: 'Invalid credentials' });
+      res
+        .status(403)
+        .send({ authorization: 'failed', message: 'Invalid credentials' });
     }
   } catch (error) {
     res.status(500).send('Internal Server Error');
