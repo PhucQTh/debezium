@@ -324,27 +324,34 @@ const SourceContent = ({ topic }: { topic: Topic }) => {
   const navigate = useNavigate();
 
   return (
-    <div
-      key={topic.name}
-      className={cx('source-content')}
-      onClick={() => {
-        navigate(`/replica-management/${topic.name}`);
-      }}
-    >
-      {topic.name}
-      <span
-        className={cx(
-          topic.tasks[0].state === 'RUNNING' ? 'success-badges' : 'error-badges'
-        )}
-      >
-        <FontAwesomeIcon
-          icon={
-            topic.tasks[0].state === 'RUNNING' ? faCheckCircle : faXmarkCircle
-          }
-          className=' mr-2'
-        />
-        {topic.tasks[0].state}
-      </span>
+    <div key={topic.name} className={cx('source-content-wrapper')}>
+      <div className={cx('source-content')}>
+        {topic.name}
+        <span
+          className={cx(
+            topic.tasks[0].state === 'RUNNING'
+              ? 'success-badges'
+              : 'error-badges'
+          )}
+        >
+          <FontAwesomeIcon
+            icon={
+              topic.tasks[0].state === 'RUNNING' ? faCheckCircle : faXmarkCircle
+            }
+            className=' mr-2'
+          />
+          {topic.tasks[0].state}
+        </span>
+
+        <div
+          className={cx('right-toolbar')}
+          onClick={() => {
+            navigate(`/replica-management/${topic.name}`);
+          }}
+        >
+          View
+        </div>
+      </div>
     </div>
   );
 };

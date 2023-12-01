@@ -9,9 +9,7 @@ export const ProtectedRoute = ({
   children: React.ReactElement;
 }) => {
   const { auth } = useSelector(appSelector);
-  if (auth !== 'OK') {
-    // user is not authenticated
-    return <Navigate to='/login' />;
-  }
-  return children;
+  const now = Date.now();
+  const isAuthExpired = auth && JSON.parse(auth).exp * 1000 < now;
+  return isAuthExpired || !auth ? <Navigate to='/login' /> : children;
 };

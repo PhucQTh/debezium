@@ -1,27 +1,30 @@
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import FormInput from 'src/components/form-input/form-input';
 import styles from 'src/page/auth/login-page.module.scss';
-import appSlice from 'src/redux/app-slice';
-import { appSelector } from 'src/redux/redux-hook';
+import { login } from 'src/redux/app-slice';
+import {
+  appSelector,
+  useAppDispatch,
+  useAppSelector,
+} from 'src/redux/redux-hook';
 const cx = classNames.bind(styles);
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const navigate = useNavigate();
-  const dispath = useDispatch();
+  const dispath = useAppDispatch();
   const handleClick = () => {
-    dispath(appSlice.actions.setAuth({ username, password, remember }));
+    dispath(login({ username, password }));
   };
-  const { auth } = useSelector(appSelector);
+  const { auth } = useAppSelector(appSelector);
+  const now = Date.now();
   useEffect(() => {
-    if (auth === 'OK') {
-      toast.success('Login successfully', { position: 'bottom-right' });
+    if (auth && JSON.parse(auth).exp * 1000 > now) {
+      toast.success('Login successfully');
       navigate('/');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,16 +52,7 @@ const LoginPage = () => {
               setPassword(e.target.value);
             }}
           />
-          <div className={cx('form-remember')}>
-            <input
-              type='checkbox'
-              id='remember'
-              checked={remember}
-              onChange={() => setRemember(!remember)}
-              className={cx('form-checkbox')}
-            />
-            <label htmlFor='remember'> Remember me</label>
-          </div>
+
           <button
             className={cx('form-btn-login')}
             onClick={() => handleClick()}

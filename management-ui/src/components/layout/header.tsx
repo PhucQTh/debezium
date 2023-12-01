@@ -12,7 +12,7 @@ function Header() {
   const navigate = useNavigate();
   const handleChange = (value: string) => {
     dispath(appSlice.actions.setEnv(value));
-    navigate(0);
+    navigate('/');
   };
   const handleLogout = () => {
     dispath(appSlice.actions.setLogout());

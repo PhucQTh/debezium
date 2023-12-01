@@ -4,8 +4,8 @@
     justify-content: center;
 }
 
-
 @mixin badges($color) {
+    margin-right: 100px;
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
@@ -121,10 +121,34 @@
     padding-block: 10px;
     justify-content: space-between;
     align-items: center;
-    background-color: rgb(240, 240, 240);
+    background-color: #fff;
+
     border-radius: 8px;
-    margin-top: 20px;
+
     cursor: pointer;
+    position: relative;
+}
+
+.source-content-wrapper {
+    margin-top: 20px;
+    background-color: #e6e6e6;
+    padding: 5px;
+    border-radius: 13px;
+    box-shadow: rgba(100, 100, 100, 0.24) 0px 3px 8px;
+}
+
+.right-toolbar {
+    position: absolute;
+    background-color: #3b82f6;
+    color: white;
+    right: 0;
+    height: 100%;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    border-radius: 0 8px 8px 0;
 }
 
 .status {

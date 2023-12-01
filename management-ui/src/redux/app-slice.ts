@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
 import { hostConfig } from 'src/config/config';
 
 export default createSlice({
   name: 'app',
   initialState: {
-    auth:
-      localStorage.getItem('auth') || sessionStorage.getItem('auth') || null,
+    auth: localStorage.getItem('auth') || null,
     environment: {
       name: localStorage.getItem('environment') || hostConfig[0].name,
     },
@@ -19,28 +19,22 @@ export default createSlice({
       const config = hostConfig.find((item) => item.name === action.payload);
       localStorage.setItem('config', JSON.stringify(config));
     },
-    setAuth(state, action) {
-      const { username, password, remember } = action.payload;
-      if (username === 'admin' && password === 'admin') {
-        state.auth = 'OK';
-        remember === true
-          ? localStorage.setItem('auth', 'OK')
-          : sessionStorage.setItem('auth', 'OK');
-      } else toast.error('Wrong username or password');
-    },
     setLogout(state) {
       state.auth = null;
-      sessionStorage.removeItem('auth');
       localStorage.removeItem('auth');
+      localStorage.removeItem('token');
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
-        console.log(action.payload);
-        // state.auth = 'OK';
+        const data = jwtDecode(action.payload.token);
+        localStorage.setItem('token', action.payload.token);
+        localStorage.setItem('auth', JSON.stringify(data));
+        state.auth = JSON.stringify(data);
       })
       .addCase(login.rejected, (state, action) => {
+        toast.error('Wrong username or password');
         state.auth = null;
       });
   },
@@ -50,7 +44,7 @@ export const login = createAsyncThunk(
   'app/login',
   async ({ username, password }: { username: string; password: string }) => {
     const res = await axios.post(
-      '/api/login',
+      'http://192.168.109.42:4000/api/login',
       { username, password },
       {
         headers: {

@@ -38,15 +38,26 @@ export const fetchConnectors = createAsyncThunk(
   'connectors/fetchConnectors',
   async () => {
     const { kafkaConnect, sqlHelperUrl } = config;
+    const token = `Bearer ${localStorage.getItem('token')}`;
     const response = await axios.get(
-      `${sqlHelperUrl}/connectors?api=${kafkaConnect}`
+      `${sqlHelperUrl}/connectors?api=${kafkaConnect}`,
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
     );
     const connectors = [...response.data];
     const tempConnectors = await Promise.all(
       connectors.map(async (connector) => {
         const statusUrl = `${config.kafkaConnect}/${connector}/status`;
         const statusResponse = await axios.get(
-          `${sqlHelperUrl}/connectors?api=${statusUrl}`
+          `${sqlHelperUrl}/connectors?api=${statusUrl}`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
         );
         return statusResponse.data;
       })

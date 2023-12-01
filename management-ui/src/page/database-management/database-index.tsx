@@ -13,15 +13,16 @@ interface IBinlog {
 const DatabaseIndexPage = () => {
   const [data, setData] = useState<IBinlog[]>([]);
   const fetchData = (server: string) => {
+    const token = `Bearer ${localStorage.getItem('token')}`;
     try {
       axios
-        .get(`${config.sqlHelperUrl}/binlog/${server}/status`)
+        .get(`${config.sqlHelperUrl}/binlog/${server}/status`, {
+          headers: {
+            Authorization: token,
+          },
+        })
         .then((response) => {
           setData(response.data);
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error(error);
         });
     } catch (error) {
       console.error(error);
@@ -52,8 +53,8 @@ const DatabaseIndexPage = () => {
           ))}
         </div>
         <div className={cx('data-card')}>
-          {data.map((item) => (
-            <div className={cx('binfile')}>{`Log name: ${
+          {data.map((item, index) => (
+            <div key={index} className={cx('binfile')}>{`Log name: ${
               item.Log_name
             } - Log size: ${numberWithCommas(item.File_size)}`}</div>
           ))}
