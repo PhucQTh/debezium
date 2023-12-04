@@ -2,9 +2,11 @@ import classNames from 'classnames/bind';
 import { useState } from 'react';
 import { getAPI, numberWithCommas } from 'src/config/ultis';
 import styles from 'src/page/database-management/database-management.module.scss';
+
 const cx = classNames.bind(styles);
 const { apiURL } = JSON.parse(localStorage.getItem('config') || '{}');
-const servers = ['production', 'sft'];
+const servers = ['production', 'sft'].sort();
+
 interface IBinlog {
   Log_name: string;
   File_size: number;
@@ -13,7 +15,7 @@ const DatabaseIndexPage = () => {
   const [data, setData] = useState<IBinlog[]>([]);
   const fetchData = (server: string) => {
     try {
-      getAPI(`${apiURL}/binlog/${server}/status`).then((response) => {
+      getAPI(`${apiURL}/binlog?server=${server}`).then((response) => {
         setData(response.data);
       });
     } catch (error) {

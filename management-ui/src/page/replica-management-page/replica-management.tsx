@@ -175,7 +175,7 @@ function ReplicaManagementPage() {
   );
 }
 const createSinkConnector = async (data: string[], connector: string) => {
-  const sqlHepperApiURL = `${config.apiURL}/get-pk/${connector.toLowerCase()}/`;
+  const sqlHepperApiURL = `${config.apiURL}/get-primary-key`;
   const uniqueList = Array.from(
     new Set(data.map((item) => item.split('.')[1]))
   );
@@ -196,7 +196,9 @@ const createSinkConnector = async (data: string[], connector: string) => {
 
   await Promise.all(
     uniqueList.map(async (db) => {
-      const response = await getAPI(`${sqlHepperApiURL}${db}`);
+      const response = await getAPI(
+        `${sqlHepperApiURL}?dbname=${db}&server=${connector.toLowerCase()}`
+      );
       await Promise.all(
         response.data.map(async (item: any) => {
           const connectorName = `sink-${db}-${item['TABLE_NAME']}`;

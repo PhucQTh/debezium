@@ -1,21 +1,22 @@
+const axios = require('axios');
+const cors = require('cors');
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const {
-  prodConfig,
-  sftConfig,
   backupConfig,
+  prodConfig,
   sftBackupConfig,
+  sftConfig,
 } = require('./config');
-const cors = require('cors');
-const app = express();
-var jwt = require('jsonwebtoken');
-const axios = require('axios');
 const config = require('./config');
 
+const app = express();
 app.use(cors());
+app.use(express.json({ type: '*/*' }));
 
-app.get('/api/get-pk/:server/:dbname', (req, res) => {
-  const { dbname, server } = req.params;
+app.get('/api/get-primary-key', authenToken, (req, res) => {
+  const { dbname, server } = req.query;
   const query = `SELECT TABLE_NAME, GROUP_CONCAT(COLUMN_NAME) AS PK
   FROM INFORMATION_SCHEMA.COLUMNS
   WHERE TABLE_SCHEMA = ? AND COLUMN_KEY = 'PRI'
@@ -38,9 +39,9 @@ app.get('/api/get-pk/:server/:dbname', (req, res) => {
   }
 });
 
-app.get('/api/binlog/:server/status', authenToken, async (req, res) => {
+app.get('/api/binlog', authenToken, async (req, res) => {
   const query = 'SHOW BINARY LOGS;';
-  const server = req.params.server;
+  const { server } = req.query;
 
   try {
     let config;
@@ -90,21 +91,33 @@ app.get('/api/binlog/:server/status', authenToken, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.get('/api/connectors', async (req, res) => {
+app.get('/api/connectors', authenToken, async (req, res) => {
   try {
     const { api } = req.query;
-    const response = await axios.get(api);
-    console.log(`GET: ${api}`);
+    const decodedUrl = decodeURIComponent(api);
+    const response = await axios.get(decodedUrl);
+    console.log(`GET: ${decodedUrl}`);
     res.send(response.data);
   } catch (error) {
     res.status(500).send('Internal Server Error');
   }
 });
-app.use(express.json({ type: '*/*' }));
+app.post('/api/connectors', authenToken, async (req, res) => {
+  try {
+    const { api } = req.query;
+    const decodedUrl = decodeURIComponent(api);
+    const response = await axios.post(decodedUrl, req.body, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(`POST: ${decodedUrl}`);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+    // throw error;
+  }
+});
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -129,6 +142,36 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.put('/api/connectors', authenToken, async (req, res) => {
+  try {
+    const { api } = req.query;
+    const decodedUrl = decodeURIComponent(api);
+    const response = await axios.put(decodedUrl, req.body, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(`PUT: ${decodedUrl}`);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.delete('/api/connectors', authenToken, async (req, res) => {
+  try {
+    const { api } = req.query;
+    const decodedUrl = decodeURIComponent(api);
+    const response = await axios.delete(decodedUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(`DELETE: ${decodedUrl}`);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+  }
+});
 function authenToken(req, res, next) {
   const authorizationClient = req.headers['authorization'];
   const token = authorizationClient && authorizationClient.split(' ')[1];

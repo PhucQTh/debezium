@@ -195,7 +195,6 @@ function ReplicaIndexPage() {
                           <SinkContent
                             key={key}
                             topic={connector}
-                            isSub={true}
                             getConfig={handleGetConfig}
                             getErr={handleGetErr}
                           />
@@ -248,20 +247,28 @@ function ReplicaIndexPage() {
     <ErrorPage />
   );
 }
+/**
+ * Renders the content of a sink.
+ *
+ * @param {object} props - The props object.
+ * @param {Topic} props.topic - The topic object.
+ * @param {boolean} [props.isSub] - Optional flag indicating if the sink is a sub-sink.
+ * @param {function} [props.getConfig] - Optional function to get the configuration.
+ * @param {function} [props.getErr] - Optional function to get the error.
+ * @return {JSX.Element} - The rendered content of the sink.
+ */
 const SinkContent = ({
   topic,
-  isSub,
   getConfig,
   getErr,
 }: {
   topic: Topic;
-  isSub?: boolean;
   getConfig?: (str: string) => void;
   getErr?: (str: string) => void;
 }) => {
   const dispath = useAppDispatch();
   const handleRestart = async () => {
-    const { kafkaConnect, apiURL } = config;
+    const { kafkaConnect } = config;
     const url = `${kafkaConnect}/${topic.name}/tasks/0/restart`;
     postAPI(url, true)
       .then(() => {
@@ -275,7 +282,7 @@ const SinkContent = ({
   return (
     <div key={topic.name} className={cx('table-content')}>
       {topic.name}
-      {isSub && topic.tasks[0].state !== 'RUNNING' && (
+      {topic.tasks[0].state !== 'RUNNING' && (
         <>
           <button
             onClick={() => {
@@ -329,7 +336,6 @@ const SinkContent = ({
 };
 const SourceContent = ({ topic }: { topic: Topic }) => {
   const navigate = useNavigate();
-
   return (
     <div key={topic.name} className={cx('source-content-wrapper')}>
       <div className={cx('source-content')}>
