@@ -28,7 +28,8 @@ const config = JSON.parse(localStorage.getItem('config') || '{}');
  */
 export const getAPI = (url: string, isBridge?: boolean) => {
   const { apiURL } = config;
-  const finalUrl = isBridge ? `${apiURL}/connectors?api=${url}` : url;
+  const encodeUrl = encodeURIComponent(url);
+  const finalUrl = isBridge ? `${apiURL}/connectors?api=${encodeUrl}` : url;
   const res = axios.get(finalUrl, {
     headers: {
       'Content-Type': 'application/json',
@@ -42,12 +43,13 @@ export const getAPI = (url: string, isBridge?: boolean) => {
  *
  * @param {string} url - The URL to send the POST request to.
  * @param {any} data - Optional data to send with the request.
- * @param {boolean} isBridge - Indicates if the request is a bridge request. 
+ * @param {boolean} isBridge - Indicates if the request is a bridge request.
  * @return {Promise} A promise that resolves with the response from the server.
  */
 export const postAPI = (url: string, data?: any, isBridge?: boolean) => {
   const { apiURL } = config;
-  const finalUrl = isBridge ? `${apiURL}/connectors?api=${url}` : url;
+  const encodeUrl = encodeURIComponent(url);
+  const finalUrl = isBridge ? `${apiURL}/connectors?api=${encodeUrl}` : url;
   const res = axios.post(finalUrl, data, {
     headers: {
       'Content-Type': 'application/json',

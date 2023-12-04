@@ -39,14 +39,10 @@ export const fetchConnectors = createAsyncThunk(
   'connectors/fetchConnectors',
   async () => {
     const { kafkaConnect } = config;
-    const response = await getAPI(kafkaConnect, true);
-    const connectors = [...response.data];
-    const tempConnectors = await Promise.all(
-      connectors.map(async (connector) => {
-        const statusUrl = `${config.kafkaConnect}/${connector}/status`;
-        const statusResponse = await getAPI(statusUrl, true);
-        return statusResponse.data;
-      })
+    const url = `${kafkaConnect}?expand=status`;
+    const connectorss = (await getAPI(`${url}`, true)).data;
+    const tempConnectors = Object.values(connectorss).map(
+      (item: any) => item.status
     );
     const database = Array.from(
       new Set(
@@ -55,6 +51,7 @@ export const fetchConnectors = createAsyncThunk(
           .map((connector) => connector.name.split('-')[1])
       )
     );
+    console.log(tempConnectors, database);
     return { tempConnectors, database };
   }
 );

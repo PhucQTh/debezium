@@ -5,11 +5,7 @@ import styles from 'src/page/replica-management-page/replica-management.module.s
 import ErrorPage from 'src/components/error-page/error-page';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faHardDrive,
-  faLink,
-  faLinkSlash,
-} from '@fortawesome/free-solid-svg-icons';
+import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import { getAPI, postAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
@@ -31,7 +27,7 @@ function ReplicaManagementPage() {
   };
   const fetchData = async () => {
     try {
-      const { kafkaConnect, apiURL } = config;
+      const { kafkaConnect } = config;
       const topicUrl = `${kafkaConnect}/${connector}/topics`;
       const [topicsResponse, connectorsResponse] = await Promise.all([
         getAPI(topicUrl, true),
@@ -199,6 +195,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
       const response = await getAPI(
         `${sqlHepperApiURL}?dbname=${db}&server=${connector.toLowerCase()}`
       );
+      console.log(response);
       await Promise.all(
         response.data.map(async (item: any) => {
           const connectorName = `sink-${db}-${item['TABLE_NAME']}`;
