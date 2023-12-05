@@ -169,9 +169,18 @@ app.delete('/api/connectors', authenToken, async (req, res) => {
     console.log(`DELETE: ${decodedUrl}`);
     res.send(response.data);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    const { status, statusText, data } = error.response;
+    res.status(500).send({
+      err: 'Internal Server Error',
+      bridgeErr: {
+        status,
+        statusText,
+        data: data,
+      },
+    });
   }
 });
+
 function authenToken(req, res, next) {
   const authorizationClient = req.headers['authorization'];
   const token = authorizationClient && authorizationClient.split(' ')[1];
