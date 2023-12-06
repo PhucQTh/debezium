@@ -18,10 +18,10 @@ import PanelPopup from 'src/components/panel-popup/panel-popup';
 import { useSelector } from 'react-redux';
 import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
 import { fetchConnectors } from 'src/redux/connector-slice';
-import { ConnectorSelector, useAppDispatch } from 'src/redux/redux-hook';
+import { connectorSelector, useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
-import { getAPI, postAPI } from 'src/config/ultis';
+import { deleteAPI, getAPI, postAPI } from 'src/config/ultis';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -30,10 +30,11 @@ function ReplicaIndexPage() {
   const [bodyShow, setBodyShow] = useState<string[]>([]);
   const [columnsName, setColumnsName] = useState('');
   const {
+    topicGroup,
     connectors,
     databases: database,
     status,
-  } = useSelector(ConnectorSelector);
+  } = useSelector(connectorSelector);
   const dispath = useAppDispatch();
   useEffect(() => {
     dispath(fetchConnectors());
@@ -142,66 +143,82 @@ function ReplicaIndexPage() {
               )
           )}
         {isChecked === true &&
-          database.map((database, index) => {
-            const filterConnectors = [...connectors]
-              .sort((a, b) => a.tasks[0].state.localeCompare(b.tasks[0].state))
-              .filter(
-                (connector) =>
-                  connector.type === 'sink' && connector.name.includes(database)
-              );
-            const failedConnectors = filterConnectors.filter(
-              (connector) => connector.tasks[0].state === 'FAILED'
-            );
+          topicGroup.map((topic) => {
             return (
-              <div key={index}>
-                <div
-                  className={cx([
-                    'container-header',
-                    bodyShow.includes(database) ? 'active' : '',
-                  ])}
-                  onClick={() => {
-                    handleClick(database);
-                  }}
-                >
-                  {`${database} - Total: ${filterConnectors.length}`}
-                  {` - Failed: ${failedConnectors.length}`}
-                  <div>
-                    <button
-                      type='button'
-                      className='text-red-500 text-3xl  font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg mr-4'
-                      onClick={() => {
-                        handleDeleteAll(filterConnectors);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faTrashCan} />
-                    </button>
-                    <button
-                      type='button'
-                      className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg'
-                      onClick={() => {
-                        handleRestartAll(filterConnectors);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faRotateRight} />
-                    </button>
-                  </div>
+              <div key={topic}>
+                <div className={cx(['container-header', 'bg-black'])}>
+                  {topic}
                 </div>
-                {bodyShow.includes(database) && (
-                  <div className={cx('table-container')}>
-                    {connectors.map(
-                      (connector, key) =>
+                {database.map((database, index) => {
+                  const filterConnectors = [...connectors]
+                    .sort((a, b) =>
+                      a.tasks[0].state.localeCompare(b.tasks[0].state)
+                    )
+                    .filter(
+                      (connector) =>
                         connector.type === 'sink' &&
-                        connector.name.includes(database) && (
-                          <SinkContent
-                            key={key}
-                            topic={connector}
-                            getConfig={handleGetConfig}
-                            getErr={handleGetErr}
-                          />
-                        )
-                    )}
-                  </div>
-                )}
+                        connector.name.includes(`${topic}-${database}`)
+                    );
+                  const failedConnectors = filterConnectors.filter(
+                    (connector) => connector.tasks[0].state === 'FAILED'
+                  );
+                  return (
+                    <div key={index}>
+                      <div
+                        className={cx([
+                          'container-header',
+                          bodyShow.includes(`${topic}-${database}`)
+                            ? 'active'
+                            : '',
+                        ])}
+                        onClick={() => {
+                          handleClick(`${topic}-${database}`);
+                        }}
+                      >
+                        {`${database} - Total: ${filterConnectors.length}`}
+                        {` - Failed: ${failedConnectors.length}`}
+                        <div>
+                          <button
+                            type='button'
+                            className='text-red-500 text-3xl  font-medium  px-5 py-2.5 hover:shadow-red-500/50 bg-white text-center shadow-lg mr-4'
+                            onClick={() => {
+                              handleDeleteAll(filterConnectors);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faTrashCan} />
+                          </button>
+                          <button
+                            type='button'
+                            className='text-blue-500 text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-white text-center shadow-lg'
+                            onClick={() => {
+                              handleRestartAll(filterConnectors);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faRotateRight} />
+                          </button>
+                        </div>
+                      </div>
+                      {bodyShow.includes(`${topic}-${database}`) && (
+                        <div className={cx('table-container')}>
+                          {connectors.map(
+                            (connector, key) =>
+                              connector.type === 'sink' &&
+                              connector.name.includes(
+                                `${topic}-${database}`
+                              ) && (
+                                <SinkContent
+                                  key={key}
+                                  topic={connector}
+                                  getConfig={handleGetConfig}
+                                  getErr={handleGetErr}
+                                />
+                              )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
@@ -369,7 +386,7 @@ const SourceContent = ({ topic }: { topic: Topic }) => {
   );
 };
 const handleDelete = async (table: string) => {
-  await axios.delete(`${config.kafkaConnect}/${table}`);
+  await deleteAPI(`${config.kafkaConnect}/${table}`, '', true);
 };
 
 export default ReplicaIndexPage;

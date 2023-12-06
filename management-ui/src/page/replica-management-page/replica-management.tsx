@@ -7,6 +7,10 @@ import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import { getAPI, postAPI } from 'src/config/ultis';
+import PanelPopup from 'src/components/panel-popup/panel-popup';
+import { useAppDispatch } from 'src/redux/redux-hook';
+import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
+import FormInput from 'src/components/form-input/form-input';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
@@ -15,8 +19,16 @@ function ReplicaManagementPage() {
   const [topics, setTopics] = useState<ITopic[]>([]);
   const [database, setDatabase] = useState(['']);
   const [loader, setLoader] = useState('loading');
-  let link = `${config.kafkaUI}/ui/clusters/Default/all-topics/`;
+  const [isCustomConfig, setIsCustomConfig] = useState(false);
   const [bodyShow, setBodyShow] = useState<string[]>([]);
+  const { backupDbHost, backupDbUser, backupDbPassword, kafkaUI } = config;
+
+  const [hostInput, setHostInput] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [prefixInput, setPrefixInput] = useState('');
+
+  let link = `${kafkaUI}/ui/clusters/Default/all-topics/`;
 
   const handleClick = (table: string) => {
     if (bodyShow.includes(table)) {
@@ -71,7 +83,7 @@ function ReplicaManagementPage() {
       console.log(err);
     }
   };
-
+  const dispath = useAppDispatch();
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,12 +93,12 @@ function ReplicaManagementPage() {
     <div className={cx('container')}>
       {loader === 'success' ? (
         <>
-          <div className='mt-10'>
+          <div className={cx('header')}>
             <h1>Connector: {connector}</h1>
             <button
               className='text-white text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg'
               onClick={() => {
-                connector && createSinkConnector(tables, connector);
+                dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
               }}
             >
               Create Sink Connector
@@ -161,6 +173,145 @@ function ReplicaManagementPage() {
               </div>
             );
           })}
+
+          <PanelPopup>
+            <h1>Sink Connector Config</h1>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Custom config
+              </label>
+              <label className={cx('switch')}>
+                <input
+                  type='checkbox'
+                  checked={isCustomConfig}
+                  onChange={(e) => {
+                    setIsCustomConfig(e.target.checked);
+                  }}
+                />
+                <span className={cx(['slider', 'round'])}></span>
+              </label>
+            </div>
+            <div
+              className={isCustomConfig === true ? cx('blur-container') : ''}
+            >
+              <div className={cx('input-container')}>
+                <label htmlFor='conn-string' style={{ width: '20%' }}>
+                  DB Host:{' '}
+                </label>
+                <FormInput
+                  type='text'
+                  placeholder='Host'
+                  style={{ width: '40%', marginRight: '10px' }}
+                  value={backupDbHost}
+                  disabled
+                />
+
+                <FormInput
+                  type='text'
+                  placeholder='Database Prefix'
+                  style={{ width: '20%' }}
+                  disabled
+                />
+              </div>
+              <div className={cx('input-container')}>
+                <label htmlFor='conn-string' style={{ width: '20%' }}>
+                  Authenticator:{' '}
+                </label>
+                <FormInput
+                  type='text'
+                  placeholder='Username'
+                  style={{ width: '20%', marginRight: '10px' }}
+                  value={backupDbUser}
+                  disabled
+                />
+                <FormInput
+                  type='password'
+                  placeholder='Password'
+                  style={{ width: '20%', marginRight: '10px' }}
+                  value={'***********'}
+                  disabled
+                />
+              </div>
+            </div>
+            <div
+              className={isCustomConfig === false ? cx('blur-container') : ''}
+            >
+              <div className={cx('input-container')}>
+                <label htmlFor='conn-string' style={{ width: '20%' }}>
+                  DB Host:{' '}
+                </label>
+                <FormInput
+                  type='text'
+                  placeholder='Host'
+                  style={{ width: '40%', marginRight: '10px' }}
+                  value={hostInput}
+                  onChange={(e) => {
+                    setHostInput(e.target.value);
+                  }}
+                />
+                <FormInput
+                  type='text'
+                  placeholder='Database Prefix'
+                  style={{ width: '20%' }}
+                  value={prefixInput}
+                  onChange={(e) => {
+                    setPrefixInput(e.target.value);
+                  }}
+                />
+              </div>
+              <div className={cx('input-container')}>
+                <label htmlFor='conn-string' style={{ width: '20%' }}>
+                  Authenticator:{' '}
+                </label>
+                <FormInput
+                  type='text'
+                  placeholder='Username'
+                  style={{ width: '20%', marginRight: '10px' }}
+                  value={usernameInput}
+                  onChange={(e) => {
+                    setUsernameInput(e.target.value);
+                  }}
+                />
+                <FormInput
+                  type='password'
+                  placeholder='Password'
+                  style={{ width: '20%', marginRight: '10px' }}
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+            <button
+              className={cx('button-create')}
+              onClick={() => {
+                if (isCustomConfig) {
+                  connector &&
+                    createSinkConnector(
+                      tables,
+                      connector,
+                      hostInput,
+                      prefixInput,
+                      passwordInput,
+                      usernameInput
+                    );
+                } else {
+                  connector &&
+                    createSinkConnector(
+                      tables,
+                      connector,
+                      backupDbHost,
+                      '',
+                      backupDbUser,
+                      backupDbPassword
+                    );
+                }
+              }}
+            >
+              Create Sink Connector
+            </button>
+          </PanelPopup>
         </>
       ) : loader === 'loading' ? (
         <span className={cx('loader')} />
@@ -170,37 +321,41 @@ function ReplicaManagementPage() {
     </div>
   );
 }
-const createSinkConnector = async (data: string[], connector: string) => {
+const createSinkConnector = async (
+  data: string[],
+  connector: string,
+  host: string,
+  prefix: string,
+  password: string,
+  username: string
+) => {
+  if (host.length === 0 || password.length === 0 || username.length === 0) {
+    toast.error('Please fill all fields', {
+      position: 'top-center',
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
+    return;
+  }
   const sqlHepperApiURL = `${config.apiURL}/get-primary-key`;
   const uniqueList = Array.from(
     new Set(data.map((item) => item.split('.')[1]))
   );
-  const {
-    backupDbHost,
-    backupDbUser,
-    backupDbPassword,
-    sftBackupDbHost,
-    sftBackupDbUser,
-    sftBackupDbPassword,
-  } = config;
-  const host =
-    connector.toLowerCase() === 'sft' ? sftBackupDbHost : backupDbHost;
-  const user =
-    connector.toLowerCase() === 'sft' ? sftBackupDbUser : backupDbUser;
-  const password =
-    connector.toLowerCase() === 'sft' ? sftBackupDbPassword : backupDbPassword;
-
+  const connPrefix = prefix === '' ? 'sink-' : `${prefix}-`;
   await Promise.all(
     uniqueList.map(async (db) => {
       const response = await getAPI(
         `${sqlHepperApiURL}?dbname=${db}&server=${connector.toLowerCase()}`
       );
-      console.log(response);
       await Promise.all(
         response.data.map(async (item: any) => {
-          const connectorName = `sink-${db}-${item['TABLE_NAME']}`;
+          const connectorName = `${connPrefix}${db}-${item['TABLE_NAME']}`;
           const connectionUrl = `jdbc:mysql://${host}/${db}?useSSL=false`;
-          // const connectionUrl = `jdbc:mysql://${config.backupDbHost}/clone_sft?useSSL=false`;
           const body = {
             name: connectorName,
             config: {
@@ -211,7 +366,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
               'value.converter.schemas.enable': 'true',
               'tasks.max': '1',
               'connection.url': connectionUrl,
-              'connection.user': user,
+              'connection.user': username,
               'connection.password': password,
               topics: `${data[0].split('.')[0]}.${db}.${item['TABLE_NAME']}`,
               'insert.mode': 'upsert',
@@ -230,6 +385,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
               'transforms.dropTopicPrefix.replacement': '$3',
             },
           };
+
           try {
             await postAPI(config.kafkaConnect, body, true);
             toast.success(`${item['TABLE_NAME']} is created successfully`, {
@@ -245,7 +401,7 @@ const createSinkConnector = async (data: string[], connector: string) => {
           } catch (error) {
             console.log(error);
           } finally {
-            console.log('done');
+            console.log(body);
           }
         })
       );

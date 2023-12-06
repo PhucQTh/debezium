@@ -1,0 +1,56 @@
+.table {
+    display: none;
+    grid-template-columns: 30% 30% 30%;
+    justify-content: space-between;
+    padding-inline: 50px;
+    padding-block: 20px;
+}
+
+.active {
+    display: grid !important
+}
+
+.table-item {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 10px;
+    padding: 8px;
+    margin-block: 4px;
+    border-radius: 8px;
+}
+
+.database {
+    display: flex;
+    background-color: #fff;
+    box-shadow: rgba(9, 125, 242, 0.2) 0px 4px 10px;
+    border-radius: 8px;
+    padding: 8px;
+    padding-inline: 20px;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    color: blue;
+    font-weight: bold;
+    user-select: none;
+    margin-bottom: 10px;
+}
+
+.group {
+    display: flex;
+    background-color: rgb(0, 255, 187);
+    border-radius: 8px;
+    padding: 8px;
+    padding-inline: 20px;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    color: #fff;
+    font-weight: bold;
+    margin-block: 8px;
+}
+
+.btn-delete {
+    background-color: red;
+    color: #fff;
+    padding: 5px;
+    text-transform: uppercase;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 10px;
+}

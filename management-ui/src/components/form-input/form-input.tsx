@@ -10,10 +10,12 @@ const FormInput: React.FC<IFormInputProps> = ({
   ref,
   value,
   onChange,
+  disabled,
 }) => {
   return (
     <div className={cx('form-input')} style={style}>
       <input
+        disabled={disabled}
         type={type}
         placeholder={placeholder}
         ref={ref}
@@ -32,5 +34,6 @@ interface IFormInputProps {
   clearBtn?: boolean;
   value?: string;
   onChange?: (e: any) => void;
+  disabled?: React.InputHTMLAttributes<HTMLInputElement>['disabled'];
 }
 export default FormInput;

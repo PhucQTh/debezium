@@ -13,6 +13,7 @@ import { useAppDispatch } from './redux/redux-hook';
 import appSlice from './redux/app-slice';
 import { hostConfig } from './config/config';
 import { ProtectedRoute } from './page/auth/protect';
+import ConsumerIndex from './page/consumer/consumer-index';
 const App: React.FC = () => {
   // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
   const dispath = useAppDispatch();
@@ -78,6 +79,12 @@ const routes = [
     name: 'Database Management',
     path: '/database-management',
     element: DatabaseIndexPage,
+    protect: true,
+  },
+  {
+    name: 'Consumer Management',
+    path: '/consumers',
+    element: ConsumerIndex,
     protect: true,
   },
   {

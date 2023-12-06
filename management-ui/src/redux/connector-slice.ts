@@ -9,6 +9,7 @@ const connectorsSlice = createSlice({
   initialState: {
     status: 'idle',
     connectors: [] as Topic[],
+    topicGroup: [''],
     databases: [''],
   },
   reducers: {},
@@ -21,6 +22,7 @@ const connectorsSlice = createSlice({
         state.status = 'success';
         state.connectors = action.payload.tempConnectors;
         state.databases = action.payload.database;
+        state.topicGroup = action.payload.groupTopic;
         toast.success('Connectors fetched successfully', {
           position: 'bottom-right',
         });
@@ -41,6 +43,7 @@ export const fetchConnectors = createAsyncThunk(
     const { kafkaConnect } = config;
     const url = `${kafkaConnect}?expand=status`;
     const connectorss = (await getAPI(`${url}`, true)).data;
+    // Get an array status of all the connector objects
     const tempConnectors = Object.values(connectorss).map(
       (item: any) => item.status
     );
@@ -51,8 +54,14 @@ export const fetchConnectors = createAsyncThunk(
           .map((connector) => connector.name.split('-')[1])
       )
     );
-    console.log(tempConnectors, database);
-    return { tempConnectors, database };
+    const groupTopic = Array.from(
+      new Set(
+        tempConnectors
+          .filter((connector) => connector.type === 'sink')
+          .map((connector) => connector.name.split('-')[0])
+      )
+    );
+    return { tempConnectors, database, groupTopic };
   }
 );
 export const createSinkConnectors = createAsyncThunk(

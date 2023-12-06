@@ -44,6 +44,11 @@ const homeItem = [
     img: '/rep-db.png',
   },
   {
+    title: 'Consumers Management',
+    to: '/consumers',
+    img: '/consumer.png',
+  },
+  {
     title: 'Binlog Management',
     to: '/database-management',
     img: '/database.png',

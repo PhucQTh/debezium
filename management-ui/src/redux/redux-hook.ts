@@ -8,5 +8,6 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 //Selector
 export const popupSelector = (state: RootState) => state.popup.status;
-export const ConnectorSelector = (state: RootState) => state.connector;
+export const connectorSelector = (state: RootState) => state.connector;
 export const appSelector = (state: RootState) => state.app;
+export const consumerSelector = (state: RootState) => state.consumer;
