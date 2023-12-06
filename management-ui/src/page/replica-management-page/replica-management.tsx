@@ -27,6 +27,7 @@ function ReplicaManagementPage() {
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [prefixInput, setPrefixInput] = useState('');
+  const [prefixDbInput, setPrefixDbInput] = useState('');
 
   let link = `${kafkaUI}/ui/clusters/Default/all-topics/`;
 
@@ -281,6 +282,15 @@ function ReplicaManagementPage() {
                     setPasswordInput(e.target.value);
                   }}
                 />
+                <FormInput
+                  type='text'
+                  placeholder='Prefix for db name'
+                  style={{ width: '20%', marginRight: '10px' }}
+                  value={prefixDbInput}
+                  onChange={(e) => {
+                    setPrefixDbInput(e.target.value);
+                  }}
+                />
               </div>
             </div>
             <button
@@ -294,7 +304,8 @@ function ReplicaManagementPage() {
                       hostInput,
                       prefixInput,
                       passwordInput,
-                      usernameInput
+                      usernameInput,
+                      prefixDbInput
                     );
                 } else {
                   connector &&
@@ -399,7 +410,6 @@ const createSinkConnector = async (
               'transforms.dropTopicPrefix.replacement': '$3',
             },
           };
-
           try {
             await postAPI(config.kafkaConnect, body, true);
             toast.success(`${item['TABLE_NAME']} is created successfully`, {
