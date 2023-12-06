@@ -321,13 +321,26 @@ function ReplicaManagementPage() {
     </div>
   );
 }
+/**
+ * Creates a sink connector for the given data.
+ *
+ * @param {string[]} data - An array of data.
+ * @param {string} connector - The connector string.
+ * @param {string} host - The host string.
+ * @param {string} prefix - The prefix string.
+ * @param {string} password - The password string.
+ * @param {string} username - The username string.
+ * @param {string} [prefixDbname] - The backupname string.
+ * @return {Promise<void>} A promise that resolves when the sink connector is created.
+ */
 const createSinkConnector = async (
   data: string[],
   connector: string,
   host: string,
   prefix: string,
   password: string,
-  username: string
+  username: string,
+  prefixDbname?: string
 ) => {
   if (host.length === 0 || password.length === 0 || username.length === 0) {
     toast.error('Please fill all fields', {
@@ -352,10 +365,11 @@ const createSinkConnector = async (
       const response = await getAPI(
         `${sqlHepperApiURL}?dbname=${db}&server=${connector.toLowerCase()}`
       );
+      const finalDbName = prefixDbname ? `${prefixDbname}_${db}` : db;
       await Promise.all(
         response.data.map(async (item: any) => {
           const connectorName = `${connPrefix}${db}-${item['TABLE_NAME']}`;
-          const connectionUrl = `jdbc:mysql://${host}/${db}?useSSL=false`;
+          const connectionUrl = `jdbc:mysql://${host}/${finalDbName}?useSSL=false`;
           const body = {
             name: connectorName,
             config: {
