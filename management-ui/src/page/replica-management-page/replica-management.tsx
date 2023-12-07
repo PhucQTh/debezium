@@ -314,8 +314,8 @@ function ReplicaManagementPage() {
                       connector,
                       backupDbHost,
                       '',
-                      backupDbUser,
-                      backupDbPassword
+                      backupDbPassword,
+                      backupDbUser
                     );
                 }
               }}

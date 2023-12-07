@@ -58,6 +58,18 @@ export const postAPI = (url: string, data?: any, isBridge?: boolean) => {
   });
   return res;
 };
+export const putAPI = (url: string, data?: any, isBridge?: boolean) => {
+  const { apiURL } = config;
+  const encodeUrl = encodeURIComponent(url);
+  const finalUrl = isBridge ? `${apiURL}/connectors?api=${encodeUrl}` : url;
+  const res = axios.put(finalUrl, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+  return res;
+};
 export const deleteAPI = (url: string, data?: any, isBridge?: boolean) => {
   const { apiURL } = config;
   const encodeUrl = encodeURIComponent(url);

@@ -21,7 +21,7 @@ import { fetchConnectors } from 'src/redux/connector-slice';
 import { connectorSelector, useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
-import { deleteAPI, getAPI, postAPI } from 'src/config/ultis';
+import { deleteAPI, getAPI, postAPI, putAPI } from 'src/config/ultis';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -100,17 +100,15 @@ function ReplicaIndexPage() {
       prevContent['transforms.TimestampConverter.field'] = columnsName;
       return prevContent;
     });
-    axios
-      .put(
-        `${config.kafkaConnect}/${popupContent['name']}/config`,
-        JSON.stringify(popupContent),
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-      .then((res) => {
-        toast.success('Connector is restarted successfully');
-      });
+
+    putAPI(
+      `${config.kafkaConnect}/${popupContent['name']}/config`,
+      JSON.stringify(popupContent),
+      true
+    ).then((res) => {
+      toast.success('Connector is restarted successfully');
+    });
+
     // console.log(popupContent);
   };
   return status === 'success' ? (
