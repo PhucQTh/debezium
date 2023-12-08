@@ -46,31 +46,25 @@ function ReplicaManagementPage() {
         getAPI(topicUrl, true),
         getAPI(kafkaConnect, true),
       ]);
-
+      const completeData: ITopic[] = [];
       const { topics } = topicsResponse.data[connector || ''];
       const filterData = topics.filter((table: string) => table.includes('.'));
-      const sinkConnectors = connectorsResponse.data.filter((item: string) =>
-        item.includes('sink-')
-      );
-      const completeData: ITopic[] = [];
       filterData.forEach((element: string) => {
         const data = element.split('.');
-        if (sinkConnectors.includes(`sink-${data[1]}-${data[2]}`)) {
-          completeData.push({
-            topic: element,
-            database: data[1],
-            table: data[2],
-            sink: `sink-${data[1]}-${data[2]}`, //THIS IS FORMAT SINK-DB-TABLE
-          });
-        } else {
-          completeData.push({
-            topic: element,
-            database: data[1],
-            table: data[2],
-            sink: ``, //THIS IS FORMAT SOURCE-DB-TABLE
-          });
-        }
+        const sinkConnectors = connectorsResponse.data.filter(
+          (item: string) =>
+            `-${item.split('-')[1]}-${item.split('-')[2]}` ===
+            `-${data[1]}-${data[2]}`
+        );
+        const prefix = sinkConnectors.map((s: string) => s.split('-')[0]);
+        completeData.push({
+          topic: element,
+          database: data[1],
+          table: data[2],
+          sink: prefix.join('|'),
+        });
       });
+      console.log(completeData);
       setTables(filterData);
       setTopics(completeData);
       setDatabase(
@@ -106,9 +100,10 @@ function ReplicaManagementPage() {
             </button>
           </div>
           {database.map((database: string, index) => {
-            const filteredTopics = topics
-              .filter((topic: ITopic) => topic.database === database)
-              .sort((a, b) => a.sink.localeCompare(b.sink));
+            const filteredTopics = topics.filter(
+              (topic: ITopic) => topic.database === database
+            );
+            // .sort((a, b) => a.sink.localeCompare(b.sink));
 
             return (
               <div key={index}>
@@ -135,27 +130,17 @@ function ReplicaManagementPage() {
                           <div className={cx('status')}>
                             <div className={cx('status-container')}>
                               {topic.sink !== '' ? (
-                                <FontAwesomeIcon
-                                  icon={faLink}
-                                  className='text-green-500 cursor-pointer'
-                                />
+                                topic.sink.split('|').map((sink: string) => (
+                                  <div key={sink} className={cx('sink-prefix')}>
+                                    {sink}
+                                  </div>
+                                ))
                               ) : (
                                 <FontAwesomeIcon
                                   icon={faLinkSlash}
                                   className='text-red-500 cursor-pointer'
                                 />
                               )}
-                              {/* {topic.sink !== '' ? (
-                                    <FontAwesomeIcon
-                                      icon={faHardDrive}
-                                      className='text-green-500 cursor-pointer'
-                                    />
-                                  ) : (
-                                    <FontAwesomeIcon
-                                      icon={faHardDrive}
-                                      className='text-red-500 cursor-pointer'
-                                    />
-                                  )} */}
                             </div>
                             <a
                               href={link + topic.topic}

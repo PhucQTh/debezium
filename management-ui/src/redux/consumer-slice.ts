@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
 import { deleteAPI, getAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 
@@ -84,7 +85,7 @@ export const deleteConsumers = createAsyncThunk(
     group.databases.forEach((database) => {
       database.table.forEach((table) => {
         deleteAPI(`${url}${table.consumer}`, '', true).then((res) => {
-          console.log(res);
+          toast.success(`${table.consumer} is deleted successfully`);
         });
       });
     });
