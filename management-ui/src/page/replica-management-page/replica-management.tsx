@@ -5,7 +5,7 @@ import styles from 'src/page/replica-management-page/replica-management.module.s
 import ErrorPage from 'src/components/error-page/error-page';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
+import { faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import { getAPI, postAPI } from 'src/config/ultis';
 import PanelPopup from 'src/components/panel-popup/panel-popup';
 import { useAppDispatch } from 'src/redux/redux-hook';
