@@ -112,7 +112,7 @@ function ReplicaIndexPage() {
   if (!data) {
     return <ErrorPage />;
   }
-  const { topicGroup, connectors, databases: database } = data;
+  const { connectors, databases: database, topicGroupIP } = data;
   return (
     <div className={cx('container')}>
       <div className='mt-10'></div>
@@ -143,11 +143,11 @@ function ReplicaIndexPage() {
               )
           )}
         {isChecked === true &&
-          topicGroup.map((topic) => {
+          topicGroupIP.map((topic) => {
             return (
-              <div key={topic}>
+              <div key={topic?.name}>
                 <div className={cx(['container-header', 'bg-black'])}>
-                  {topic}
+                  {topic?.name} - {topic?.ipAddress}
                 </div>
                 {database.map((database, index) => {
                   const filterConnectors = [...connectors]

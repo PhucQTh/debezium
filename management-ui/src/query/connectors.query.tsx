@@ -22,9 +22,9 @@ export const useConnectorsQuery = () => {
 const fetchConnectors = async () => {
   const { kafkaConnect } = config;
   const url = `${kafkaConnect}?expand=status`;
-  const connectorss = (await getAPI(`${url}`, true)).data;
+  const data = (await getAPI(`${url}`, true)).data;
   // Get an array status of all the connector objects
-  const connectors = Object.values(connectorss).map((item: any) => item.status);
+  const connectors = Object.values(data).map((item: any) => item.status);
   const databases = Array.from(
     new Set(
       connectors
@@ -39,5 +39,32 @@ const fetchConnectors = async () => {
         .map((connector) => connector.name.split('-')[0])
     )
   );
-  return { connectors, databases, topicGroup };
+  // Refactor the map function to create an array of topic names
+  const topicNameIpPairs = await Promise.all(
+    // Map each topic in the topicGroup array to an async function that returns an object with the topic name and IP address
+    topicGroup.map(async (item) => {
+      // get first connector of each topic
+      const index = connectors.findIndex((connector) =>
+        connector.name.includes(`${item}-`)
+      );
+      if (index === -1) return null;
+
+      const connectorName = connectors[index].name;
+      // Retrieve the configuration data for the connector
+      const configRes = (await getAPI(`${kafkaConnect}/${connectorName}`, true))
+        .data;
+      const regex = /\d+\.\d+\.\d+\.\d+/;
+      const connectionUrl = configRes.config['connection.url'];
+      // Extract the IP address from the connection URL using a regular expression
+      const ipAddressMatch = connectionUrl.match(regex);
+      const ipAddress = ipAddressMatch ? ipAddressMatch[0] : null;
+
+      // Return an object with the topic name and IP address if the IP address exists, otherwise return null
+      return ipAddress ? { name: item, ipAddress } : null;
+    })
+  );
+
+  const topicGroupIP = topicNameIpPairs.filter((pair) => pair !== null);
+
+  return { connectors, databases, topicGroup, topicGroupIP };
 };
