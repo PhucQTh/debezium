@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from 'src/page/replica-management-page/replica-management.module.scss';
@@ -15,13 +15,13 @@ import {
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import PanelPopup from 'src/components/panel-popup/panel-popup';
-import { useSelector } from 'react-redux';
 import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
 import { fetchConnectors } from 'src/redux/connector-slice';
-import { connectorSelector, useAppDispatch } from 'src/redux/redux-hook';
+import { useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
 import { deleteAPI, getAPI, postAPI, putAPI } from 'src/config/ultis';
+import { useConnectorsQuery } from 'src/query/connectors.query';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -29,17 +29,9 @@ function ReplicaIndexPage() {
   const [popupContent, setPopupContent] = useState<any>({});
   const [bodyShow, setBodyShow] = useState<string[]>([]);
   const [columnsName, setColumnsName] = useState('');
-  const {
-    topicGroup,
-    connectors,
-    databases: database,
-    status,
-  } = useSelector(connectorSelector);
+
   const dispath = useAppDispatch();
-  useEffect(() => {
-    dispath(fetchConnectors());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { kafkaConnect } = config;
   const handleClick = (table: string) => {
     if (bodyShow.includes(table)) {
       setBodyShow(bodyShow.filter((t) => t !== table));
@@ -73,7 +65,6 @@ function ReplicaIndexPage() {
         console.error(error);
       });
   };
-  const { kafkaConnect } = config;
   const handleGetConfig = async (tableName: string) => {
     const configUrl = `${kafkaConnect}/${tableName}/config`;
     getAPI(configUrl, true).then((res) => {
@@ -111,7 +102,18 @@ function ReplicaIndexPage() {
 
     // console.log(popupContent);
   };
-  return status === 'success' ? (
+  const { data, isError, isLoading } = useConnectorsQuery();
+  if (isLoading) {
+    return <LoadingComponent />;
+  }
+  if (isError) {
+    return <ErrorPage />;
+  }
+  if (!data) {
+    return <ErrorPage />;
+  }
+  const { topicGroup, connectors, databases: database } = data;
+  return (
     <div className={cx('container')}>
       <div className='mt-10'></div>
       <div className='flex items-center justify-between'>
@@ -256,10 +258,6 @@ function ReplicaIndexPage() {
         )}
       </PanelPopup>
     </div>
-  ) : status === 'loading' ? (
-    <LoadingComponent />
-  ) : (
-    <ErrorPage />
   );
 }
 /**

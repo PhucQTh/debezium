@@ -1,21 +1,9 @@
-import { useEffect, useState } from 'react';
-import {
-  IConsumers,
-  IDatabase,
-  deleteConsumers,
-  fetchConsumers,
-} from 'src/redux/consumer-slice';
+import { useState } from 'react';
 import styles from 'src/page/consumer/consumer.module.scss';
-import {
-  consumerSelector,
-  useAppDispatch,
-  useAppSelector,
-} from 'src/redux/redux-hook';
 import classNames from 'classnames/bind';
+import { IConsumers, IDatabase, useConsumers } from 'src/query/consumer.query';
 const cx = classNames.bind(styles);
 const ConsumerIndex = () => {
-  const dispath = useAppDispatch();
-  const { consumers } = useAppSelector(consumerSelector);
   const [expand, setExpand] = useState(['']);
   const handleClick = (table: string) => {
     if (expand.includes(table)) {
@@ -23,19 +11,25 @@ const ConsumerIndex = () => {
     } else {
       setExpand([...expand, table]);
     }
-    console.log(expand);
   };
   const handleDelete = (group: IConsumers) => {
-    dispath(deleteConsumers(group));
+    // dispath(deleteConsumers(group));
   };
-  useEffect(() => {
-    dispath(fetchConsumers());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data, isError, isLoading, isFetching } = useConsumers();
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error</div>;
+  }
+  if (isFetching) {
+    return <div>Fetching</div>;
+  }
+
   return (
     <div>
       <h1>Consumers management</h1>
-      {consumers.map((group: IConsumers, key) => {
+      {data.map((group: IConsumers, key: number) => {
         return (
           <div key={key}>
             <div className={cx('group')}>

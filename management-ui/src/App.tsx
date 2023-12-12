@@ -1,6 +1,6 @@
 import React from 'react';
 import DefaultLayout from 'src/components/layout/default';
-import HomePage from './page/homepage';
+import HomePage from './page/home/homepage';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -14,43 +14,50 @@ import appSlice from './redux/app-slice';
 import { hostConfig } from './config/config';
 import { ProtectedRoute } from './page/auth/protect';
 import ConsumerIndex from './page/consumer/consumer-index';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
 const App: React.FC = () => {
   // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
   const dispath = useAppDispatch();
   !localStorage.getItem('environment') &&
     dispath(appSlice.actions.setEnv(hostConfig[0].name));
   //==========================================================================
+  const queryClient = new QueryClient();
   return (
     <BrowserRouter>
-      <DefaultLayout>
-        <Routes>
-          {routes.map((route, key) => (
-            <Route
-              key={key}
-              path={route.path}
-              element={
-                route.protect === true ? (
-                  <ProtectedRoute>{<route.element />}</ProtectedRoute>
-                ) : (
-                  <route.element />
-                )
-              }
-            />
-          ))}
-        </Routes>
-        <ToastContainer
-          position='top-right'
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover={false}
-          theme='light'
-        />
-      </DefaultLayout>
+      <QueryClientProvider client={queryClient}>
+        <DefaultLayout>
+          <Routes>
+            {routes.map((route, key) => (
+              <Route
+                key={key}
+                path={route.path}
+                element={
+                  route.protect === true ? (
+                    <ProtectedRoute>{<route.element />}</ProtectedRoute>
+                  ) : (
+                    <route.element />
+                  )
+                }
+              />
+            ))}
+          </Routes>
+          <ToastContainer
+            position='top-right'
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            theme='light'
+          />
+        </DefaultLayout>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </BrowserRouter>
   );
 };

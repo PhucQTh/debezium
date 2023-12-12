@@ -1,5 +1,5 @@
 import classNames from 'classnames/bind';
-import styles from 'src/page/homepage.module.scss';
+import styles from 'src/page/home/homepage.module.scss';
 // import { config } from 'src/config/config';
 const cx = classNames.bind(styles);
 const HomePage = () => {

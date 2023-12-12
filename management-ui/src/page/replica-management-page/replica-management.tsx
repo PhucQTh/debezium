@@ -11,6 +11,7 @@ import PanelPopup from 'src/components/panel-popup/panel-popup';
 import { useAppDispatch } from 'src/redux/redux-hook';
 import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
 import FormInput from 'src/components/form-input/form-input';
+import RadarLoader from 'src/components/radar-loader/radar-loader';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
@@ -83,237 +84,231 @@ function ReplicaManagementPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  if (loader === 'error') {
+    return <ErrorPage />;
+  }
 
+  if (loader === 'loading') {
+    return <RadarLoader />;
+  }
   return (
     <div className={cx('container')}>
-      {loader === 'success' ? (
-        <>
-          <div className={cx('header')}>
-            <h1>Connector: {connector}</h1>
-            <button
-              className='text-white text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg'
+      <div className={cx('header')}>
+        <h1>Connector: {connector}</h1>
+        <button
+          className='text-white text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg'
+          onClick={() => {
+            dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
+          }}
+        >
+          Create Sink Connector
+        </button>
+      </div>
+      {database.map((database: string, index) => {
+        const filteredTopics = topics.filter(
+          (topic: ITopic) => topic.database === database
+        );
+        // .sort((a, b) => a.sink.localeCompare(b.sink));
+
+        return (
+          <div key={index}>
+            <div
+              className={cx('container-header')}
               onClick={() => {
-                dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
+                handleClick(database);
               }}
             >
-              Create Sink Connector
-            </button>
-          </div>
-          {database.map((database: string, index) => {
-            const filteredTopics = topics.filter(
-              (topic: ITopic) => topic.database === database
-            );
-            // .sort((a, b) => a.sink.localeCompare(b.sink));
-
-            return (
-              <div key={index}>
-                <div
-                  className={cx('container-header')}
-                  onClick={() => {
-                    handleClick(database);
-                  }}
-                >
-                  {index + 1}. {database}
-                  <div>{`topics: ${filteredTopics.length}`}</div>
-                  {countTopics(filteredTopics, '') > 0 && (
-                    <span className={cx('red-dot')}>
-                      {countTopics(filteredTopics, '')}
-                    </span>
-                  )}
-                </div>
-                {bodyShow.includes(database) && (
-                  <div className={cx('table-container')}>
-                    {filteredTopics.map((topic: ITopic, index) => {
-                      return (
-                        <div key={index} className={cx('table-content')}>
-                          {`${index + 1}-${topic.table}`}
-                          <div className={cx('status')}>
-                            <div className={cx('status-container')}>
-                              {topic.sink !== '' ? (
-                                topic.sink.split('|').map((sink: string) => (
-                                  <div key={sink} className={cx('sink-prefix')}>
-                                    {sink}
-                                  </div>
-                                ))
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faLinkSlash}
-                                  className='text-red-500 cursor-pointer'
-                                />
-                              )}
-                            </div>
-                            <a
-                              href={link + topic.topic}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full'
-                            >
-                              View in Kafka
-                            </a>
-                          </div>
+              {index + 1}. {database}
+              <div>{`topics: ${filteredTopics.length}`}</div>
+              {countTopics(filteredTopics, '') > 0 && (
+                <span className={cx('red-dot')}>
+                  {countTopics(filteredTopics, '')}
+                </span>
+              )}
+            </div>
+            {bodyShow.includes(database) && (
+              <div className={cx('table-container')}>
+                {filteredTopics.map((topic: ITopic, index) => {
+                  return (
+                    <div key={index} className={cx('table-content')}>
+                      {`${index + 1}-${topic.table}`}
+                      <div className={cx('status')}>
+                        <div className={cx('status-container')}>
+                          {topic.sink !== '' ? (
+                            topic.sink.split('|').map((sink: string) => (
+                              <div key={sink} className={cx('sink-prefix')}>
+                                {sink}
+                              </div>
+                            ))
+                          ) : (
+                            <FontAwesomeIcon
+                              icon={faLinkSlash}
+                              className='text-red-500 cursor-pointer'
+                            />
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        <a
+                          href={link + topic.topic}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full'
+                        >
+                          View in Kafka
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            )}
+          </div>
+        );
+      })}
 
-          <PanelPopup>
-            <h1>Sink Connector Config</h1>
-            <div className={cx('input-container')}>
-              <label htmlFor='conn-string' style={{ width: '20%' }}>
-                Custom config
-              </label>
-              <label className={cx('switch')}>
-                <input
-                  type='checkbox'
-                  checked={isCustomConfig}
-                  onChange={(e) => {
-                    setIsCustomConfig(e.target.checked);
-                  }}
-                />
-                <span className={cx(['slider', 'round'])}></span>
-              </label>
-            </div>
-            <div
-              className={isCustomConfig === true ? cx('blur-container') : ''}
-            >
-              <div className={cx('input-container')}>
-                <label htmlFor='conn-string' style={{ width: '20%' }}>
-                  DB Host:{' '}
-                </label>
-                <FormInput
-                  type='text'
-                  placeholder='Host'
-                  style={{ width: '40%', marginRight: '10px' }}
-                  value={backupDbHost}
-                  disabled
-                />
-
-                <FormInput
-                  type='text'
-                  placeholder='Database Prefix'
-                  style={{ width: '20%' }}
-                  disabled
-                />
-              </div>
-              <div className={cx('input-container')}>
-                <label htmlFor='conn-string' style={{ width: '20%' }}>
-                  Authenticator:{' '}
-                </label>
-                <FormInput
-                  type='text'
-                  placeholder='Username'
-                  style={{ width: '20%', marginRight: '10px' }}
-                  value={backupDbUser}
-                  disabled
-                />
-                <FormInput
-                  type='password'
-                  placeholder='Password'
-                  style={{ width: '20%', marginRight: '10px' }}
-                  value={'***********'}
-                  disabled
-                />
-              </div>
-            </div>
-            <div
-              className={isCustomConfig === false ? cx('blur-container') : ''}
-            >
-              <div className={cx('input-container')}>
-                <label htmlFor='conn-string' style={{ width: '20%' }}>
-                  DB Host:{' '}
-                </label>
-                <FormInput
-                  type='text'
-                  placeholder='Host'
-                  style={{ width: '40%', marginRight: '10px' }}
-                  value={hostInput}
-                  onChange={(e) => {
-                    setHostInput(e.target.value);
-                  }}
-                />
-                <FormInput
-                  type='text'
-                  placeholder='Database Prefix'
-                  style={{ width: '20%' }}
-                  value={prefixInput}
-                  onChange={(e) => {
-                    setPrefixInput(e.target.value);
-                  }}
-                />
-              </div>
-              <div className={cx('input-container')}>
-                <label htmlFor='conn-string' style={{ width: '20%' }}>
-                  Authenticator:{' '}
-                </label>
-                <FormInput
-                  type='text'
-                  placeholder='Username'
-                  style={{ width: '20%', marginRight: '10px' }}
-                  value={usernameInput}
-                  onChange={(e) => {
-                    setUsernameInput(e.target.value);
-                  }}
-                />
-                <FormInput
-                  type='password'
-                  placeholder='Password'
-                  style={{ width: '20%', marginRight: '10px' }}
-                  value={passwordInput}
-                  onChange={(e) => {
-                    setPasswordInput(e.target.value);
-                  }}
-                />
-                <FormInput
-                  type='text'
-                  placeholder='Prefix for db name'
-                  style={{ width: '20%', marginRight: '10px' }}
-                  value={prefixDbInput}
-                  onChange={(e) => {
-                    setPrefixDbInput(e.target.value);
-                  }}
-                />
-              </div>
-            </div>
-            <button
-              className={cx('button-create')}
-              onClick={() => {
-                if (isCustomConfig) {
-                  connector &&
-                    createSinkConnector(
-                      tables,
-                      connector,
-                      hostInput,
-                      prefixInput,
-                      passwordInput,
-                      usernameInput,
-                      prefixDbInput
-                    );
-                } else {
-                  connector &&
-                    createSinkConnector(
-                      tables,
-                      connector,
-                      backupDbHost,
-                      '',
-                      backupDbPassword,
-                      backupDbUser
-                    );
-                }
+      <PanelPopup>
+        <h1>Sink Connector Config</h1>
+        <div className={cx('input-container')}>
+          <label htmlFor='conn-string' style={{ width: '20%' }}>
+            Custom config
+          </label>
+          <label className={cx('switch')}>
+            <input
+              type='checkbox'
+              checked={isCustomConfig}
+              onChange={(e) => {
+                setIsCustomConfig(e.target.checked);
               }}
-            >
-              Create Sink Connector
-            </button>
-          </PanelPopup>
-        </>
-      ) : loader === 'loading' ? (
-        <span className={cx('loader')} />
-      ) : (
-        <ErrorPage />
-      )}
+            />
+            <span className={cx(['slider', 'round'])}></span>
+          </label>
+        </div>
+        <div className={isCustomConfig === true ? cx('blur-container') : ''}>
+          <div className={cx('input-container')}>
+            <label htmlFor='conn-string' style={{ width: '20%' }}>
+              DB Host:{' '}
+            </label>
+            <FormInput
+              type='text'
+              placeholder='Host'
+              style={{ width: '40%', marginRight: '10px' }}
+              value={backupDbHost}
+              disabled
+            />
+
+            <FormInput
+              type='text'
+              placeholder='Database Prefix'
+              style={{ width: '20%' }}
+              disabled
+            />
+          </div>
+          <div className={cx('input-container')}>
+            <label htmlFor='conn-string' style={{ width: '20%' }}>
+              Authenticator:{' '}
+            </label>
+            <FormInput
+              type='text'
+              placeholder='Username'
+              style={{ width: '20%', marginRight: '10px' }}
+              value={backupDbUser}
+              disabled
+            />
+            <FormInput
+              type='password'
+              placeholder='Password'
+              style={{ width: '20%', marginRight: '10px' }}
+              value={'***********'}
+              disabled
+            />
+          </div>
+        </div>
+        <div className={isCustomConfig === false ? cx('blur-container') : ''}>
+          <div className={cx('input-container')}>
+            <label htmlFor='conn-string' style={{ width: '20%' }}>
+              DB Host:{' '}
+            </label>
+            <FormInput
+              type='text'
+              placeholder='Host'
+              style={{ width: '40%', marginRight: '10px' }}
+              value={hostInput}
+              onChange={(e) => {
+                setHostInput(e.target.value);
+              }}
+            />
+            <FormInput
+              type='text'
+              placeholder='Database Prefix'
+              style={{ width: '20%' }}
+              value={prefixInput}
+              onChange={(e) => {
+                setPrefixInput(e.target.value);
+              }}
+            />
+          </div>
+          <div className={cx('input-container')}>
+            <label htmlFor='conn-string' style={{ width: '20%' }}>
+              Authenticator:{' '}
+            </label>
+            <FormInput
+              type='text'
+              placeholder='Username'
+              style={{ width: '20%', marginRight: '10px' }}
+              value={usernameInput}
+              onChange={(e) => {
+                setUsernameInput(e.target.value);
+              }}
+            />
+            <FormInput
+              type='password'
+              placeholder='Password'
+              style={{ width: '20%', marginRight: '10px' }}
+              value={passwordInput}
+              onChange={(e) => {
+                setPasswordInput(e.target.value);
+              }}
+            />
+            <FormInput
+              type='text'
+              placeholder='Prefix for db name'
+              style={{ width: '20%', marginRight: '10px' }}
+              value={prefixDbInput}
+              onChange={(e) => {
+                setPrefixDbInput(e.target.value);
+              }}
+            />
+          </div>
+        </div>
+        <button
+          className={cx('button-create')}
+          onClick={() => {
+            if (isCustomConfig) {
+              connector &&
+                createSinkConnector(
+                  tables,
+                  connector,
+                  hostInput,
+                  prefixInput,
+                  passwordInput,
+                  usernameInput,
+                  prefixDbInput
+                );
+            } else {
+              connector &&
+                createSinkConnector(
+                  tables,
+                  connector,
+                  backupDbHost,
+                  '',
+                  backupDbPassword,
+                  backupDbUser
+                );
+            }
+          }}
+        >
+          Create Sink Connector
+        </button>
+      </PanelPopup>
     </div>
   );
 }
