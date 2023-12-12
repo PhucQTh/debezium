@@ -145,7 +145,6 @@ function ReplicaIndexPage() {
         {isChecked === true &&
           topicGroupIP.map((item) => {
             const topic = item?.name;
-            console.log(topic);
             return (
               <div key={item?.name}>
                 <div className={cx(['container-header', 'bg-black'])}>
