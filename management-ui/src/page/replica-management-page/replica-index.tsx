@@ -143,11 +143,13 @@ function ReplicaIndexPage() {
               )
           )}
         {isChecked === true &&
-          topicGroupIP.map((topic) => {
+          topicGroupIP.map((item) => {
+            const topic = item?.name;
+            console.log(topic);
             return (
-              <div key={topic?.name}>
+              <div key={item?.name}>
                 <div className={cx(['container-header', 'bg-black'])}>
-                  {topic?.name} - {topic?.ipAddress}
+                  {item?.name} - {item?.ipAddress}
                 </div>
                 {database.map((database, index) => {
                   const filterConnectors = [...connectors]
