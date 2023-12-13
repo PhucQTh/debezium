@@ -23,7 +23,13 @@ const App: React.FC = () => {
   !localStorage.getItem('environment') &&
     dispath(appSlice.actions.setEnv(hostConfig[0].name));
   //==========================================================================
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        // refetchOnWindowFocus: false,
+      },
+    },
+  });
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
@@ -55,8 +61,11 @@ const App: React.FC = () => {
             pauseOnHover={false}
             theme='light'
           />
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            styleNonce='font-size:2rem'
+          />
         </DefaultLayout>
-        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </BrowserRouter>
   );

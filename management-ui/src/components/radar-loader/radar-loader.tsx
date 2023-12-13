@@ -5,8 +5,10 @@ import classNames from 'classnames/bind';
 const cx = classNames.bind(style);
 const RadarLoader = () => {
   return (
-    <div className={cx('loader')}>
-      <span></span>
+    <div className={cx('wrapper')}>
+      <div className={cx('loader')}>
+        <span></span>
+      </div>
     </div>
   );
 };

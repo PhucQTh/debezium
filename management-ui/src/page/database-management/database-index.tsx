@@ -54,7 +54,9 @@ const DatabaseIndexPage = () => {
           ))}
           {data[isChoiced].length !== 0 && (
             <div className={cx('card-footer')}>
-              {`Total: ${data.length} - Size: ${sizeToGigabytes()} GB`}
+              {`Total: ${
+                data[isChoiced].length
+              } - Size: ${sizeToGigabytes()} GB`}
             </div>
           )}
         </div>

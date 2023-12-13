@@ -5,7 +5,9 @@ import styles from 'src/components/layout/header.module.scss';
 import { hostConfig } from 'src/config/config';
 import appSlice from 'src/redux/app-slice';
 import { appSelector, useAppDispatch } from 'src/redux/redux-hook';
+import { QueryCache } from '@tanstack/react-query';
 const cx = classNames.bind(styles);
+
 function Header() {
   const dispath = useAppDispatch();
   const { environment, auth } = useSelector(appSelector);
@@ -13,6 +15,7 @@ function Header() {
   const handleChange = (value: string) => {
     dispath(appSlice.actions.setEnv(value));
     navigate('/');
+    window.location.reload();
   };
   const handleLogout = () => {
     dispath(appSlice.actions.setLogout());

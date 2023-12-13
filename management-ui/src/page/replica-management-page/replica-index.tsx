@@ -32,6 +32,7 @@ function ReplicaIndexPage() {
 
   const dispath = useAppDispatch();
   const { kafkaConnect } = config;
+  //#region HANDLE ACTION
   const handleClick = (table: string) => {
     if (bodyShow.includes(table)) {
       setBodyShow(bodyShow.filter((t) => t !== table));
@@ -72,7 +73,6 @@ function ReplicaIndexPage() {
     });
     dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
-
   const handleGetErr = async (tableName: string) => {
     const errUrl = `${kafkaConnect}/${tableName}/status`;
     getAPI(errUrl, true).then((res) => {
@@ -102,6 +102,8 @@ function ReplicaIndexPage() {
 
     // console.log(popupContent);
   };
+  //#endregion
+
   const { data, isError, isLoading } = useConnectorsQuery();
   if (isLoading) {
     return <LoadingComponent />;

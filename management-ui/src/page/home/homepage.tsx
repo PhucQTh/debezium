@@ -1,4 +1,5 @@
 import classNames from 'classnames/bind';
+import { Link } from 'react-router-dom';
 import styles from 'src/page/home/homepage.module.scss';
 // import { config } from 'src/config/config';
 const cx = classNames.bind(styles);
@@ -8,10 +9,10 @@ const HomePage = () => {
       {homeItem.map((item, index) => {
         const { to, img, title } = item;
         return (
-          <a href={to} className={cx('item-card')} key={index}>
+          <Link to={to} className={cx('item-card')} key={index}>
             <img src={img} alt='' className={cx('item-img')} />
             <div>{title}</div>
-          </a>
+          </Link>
         );
       })}
     </div>

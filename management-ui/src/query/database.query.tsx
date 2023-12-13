@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAPI } from 'src/config/ultis';
+import { MINUTES, getAPI } from 'src/config/ultis';
 const { apiURL } = JSON.parse(localStorage.getItem('config') || '{}');
 const fetchBinlog = async () => {
   const requests = servers.map((server) => {
@@ -15,6 +15,8 @@ export const useDatabaseQuery = () => {
   return useQuery({
     queryKey: ['databases'],
     queryFn: fetchBinlog,
+    staleTime: 5 * MINUTES,
+    gcTime: Infinity,
   });
 };
 const servers = ['production', 'sft'].sort();

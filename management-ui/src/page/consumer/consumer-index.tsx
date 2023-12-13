@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import styles from 'src/page/consumer/consumer.module.scss';
 import classNames from 'classnames/bind';
-import { IConsumers, IDatabase, useConsumers } from 'src/query/consumer.query';
+import {
+  IConsumers,
+  IDatabase,
+  deleteConsumer,
+  useConsumers,
+} from 'src/query/consumer.query';
+import { useQueryClient } from '@tanstack/react-query';
 const cx = classNames.bind(styles);
 const ConsumerIndex = () => {
   const [expand, setExpand] = useState(['']);
+
   const handleClick = (table: string) => {
     if (expand.includes(table)) {
       setExpand(expand.filter((t) => t !== table));
@@ -12,10 +19,14 @@ const ConsumerIndex = () => {
       setExpand([...expand, table]);
     }
   };
+
   const handleDelete = (group: IConsumers) => {
-    // dispath(deleteConsumers(group));
+    deleteConsumer(group).then(() => {});
   };
+  const queryClient = useQueryClient();
   const { data, isError, isLoading, isFetching } = useConsumers();
+
+  //#REGION HANDLE STATUS
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -25,7 +36,7 @@ const ConsumerIndex = () => {
   if (isFetching) {
     return <div>Fetching</div>;
   }
-
+  //#endregion
   return (
     <div>
       <h1>Consumers management</h1>

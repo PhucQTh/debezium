@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getAPI } from 'src/config/ultis';
+import { useQuery } from '@tanstack/react-query';
+import { deleteAPI, getAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 
 const { kafkaUI } = config;
@@ -55,16 +55,20 @@ const fetchConsumers = async () => {
   return result;
   // return consumers.data.consumerGroups;
 };
-
+export const deleteConsumer = async (group: IConsumers) => {
+  const url = `${kafkaUI}/api/clusters/Default/consumer-groups/`;
+  return await Promise.all(
+    group.databases.flatMap((database) =>
+      database.table.map((table) =>
+        deleteAPI(`${url}${table.consumer}`, '', true)
+      )
+    )
+  );
+};
 export const useConsumers = () => {
   return useQuery({ queryKey: ['consumers'], queryFn: fetchConsumers });
 };
 
-// export const consumerMutation = useMutation(deteleMutation, {
-//   onSuccess: () => {
-//     queryClient.invalidateQueries({ queryKey: ['consumers'] });
-//   },
-// });
 export interface IConsumers {
   name: string;
   databases: IDatabase[];
@@ -78,18 +82,3 @@ export interface IDatabase {
     }
   ];
 }
-
-// export const deleteConsumers = createAsyncThunk(
-//   'consumer/deleteConsumers',
-//   async (group: IConsumers) => {
-//     console.log(group);
-//     const url = `${kafkaUI}/api/clusters/Default/consumer-groups/`;
-//     group.databases.forEach((database) => {
-//       database.table.forEach((table) => {
-//         deleteAPI(`${url}${table.consumer}`, '', true).then((res) => {
-//           toast.success(`${table.consumer} is deleted successfully`);
-//         });
-//       });
-//     });
-//   }
-// );

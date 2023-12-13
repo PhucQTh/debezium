@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAPI } from 'src/config/ultis';
+import { MINUTES, getAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 /**
  * Retrieves and returns a query result for the connectors data.
@@ -9,8 +9,9 @@ const config = JSON.parse(localStorage.getItem('config') || '{}');
 export const useConnectorsQuery = () => {
   return useQuery({
     queryKey: ['connectors'],
-    queryFn: fetchConnectors,
-    refetchOnWindowFocus: false,
+    queryFn: () => fetchConnectors(),
+    staleTime: 1 * MINUTES,
+    gcTime: 1 * MINUTES,
   });
 };
 /**
@@ -66,5 +67,5 @@ const fetchConnectors = async () => {
 
   const topicGroupIP = topicNameIpPairs.filter((pair) => pair !== null);
 
-  return { connectors, databases, topicGroup, topicGroupIP };
+  return { connectors, databases, topicGroupIP };
 };
