@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { deleteAPI, getAPI } from 'src/config/ultis';
+import { MINUTES, deleteAPI, getAPI } from 'src/config/ultis';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 
 const { kafkaUI } = config;
@@ -66,7 +66,12 @@ export const deleteConsumer = async (group: IConsumers) => {
   );
 };
 export const useConsumers = () => {
-  return useQuery({ queryKey: ['consumers'], queryFn: fetchConsumers });
+  return useQuery({
+    queryKey: ['consumers'],
+    queryFn: fetchConsumers,
+    staleTime: 1 * MINUTES,
+    gcTime: 1 * MINUTES,
+  });
 };
 
 export interface IConsumers {
