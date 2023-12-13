@@ -7,7 +7,6 @@ import {
   deleteConsumer,
   useConsumers,
 } from 'src/query/consumer.query';
-import { useQueryClient } from '@tanstack/react-query';
 const cx = classNames.bind(styles);
 const ConsumerIndex = () => {
   const [expand, setExpand] = useState(['']);
@@ -23,8 +22,7 @@ const ConsumerIndex = () => {
   const handleDelete = (group: IConsumers) => {
     deleteConsumer(group).then(() => {});
   };
-  const queryClient = useQueryClient();
-  const { data, isError, isLoading, isFetching } = useConsumers();
+  const { data, isError, isLoading } = useConsumers();
 
   //#REGION HANDLE STATUS
   if (isLoading) {
@@ -33,9 +31,7 @@ const ConsumerIndex = () => {
   if (isError) {
     return <div>Error</div>;
   }
-  if (isFetching) {
-    return <div>Fetching</div>;
-  }
+
   //#endregion
   return (
     <div>
