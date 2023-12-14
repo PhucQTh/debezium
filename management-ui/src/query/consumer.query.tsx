@@ -1,17 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { MINUTES, deleteAPI, getAPI } from 'src/config/ultis';
+
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 
 const { kafkaUI } = config;
 const fetchConsumers = async () => {
-  const uri = `${kafkaUI}/api/clusters/Default/consumer-groups/paged?page=1&perPage=2500&search=`;
+  const uri = `${kafkaUI}/api/clusters/Default/consumer-groups/paged?page=1&perPage=2500&search=&orderBy=MESSAGES_BEHIND&sortOrder=DESC`;
   const consumers = await getAPI(uri, true);
-  const groupIds = consumers['data']['consumerGroups'].map(
-    (item: any) => item.groupId
-  );
+  const groupIds = consumers.data.consumerGroups.map((item: any) => ({
+    groupId: item.groupId,
+    messagesBehind: item.messagesBehind,
+  }));
   const result = groupIds.reduce((acc: any, groupId: any) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, group, database, table] = groupId.split('-');
+    const [_, group, database, table] = groupId['groupId'].split('-');
 
     const existingGroup = acc.find((item: any) => item.name === group);
 
@@ -21,14 +23,19 @@ const fetchConsumers = async () => {
       );
 
       if (existingDatabase) {
-        existingDatabase.table.push({ name: table, consumer: groupId });
+        existingDatabase.table.push({
+          name: table,
+          consumer: groupId['groupId'],
+          messagesBehind: groupId['messagesBehind'],
+        });
       } else {
         existingGroup.databases.push({
           name: database,
           table: [
             {
               name: table,
-              consumer: groupId,
+              consumer: groupId['groupId'],
+              messagesBehind: groupId['messagesBehind'],
             },
           ],
         });
@@ -42,7 +49,8 @@ const fetchConsumers = async () => {
             table: [
               {
                 name: table,
-                consumer: groupId,
+                consumer: groupId['groupId'],
+                messagesBehind: groupId['messagesBehind'],
               },
             ],
           },

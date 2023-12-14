@@ -76,8 +76,19 @@ const ConsumerIndex = () => {
                   >
                     {database.table.map((table: any, key) => {
                       return (
-                        <div key={key} className={cx(['table-item'])}>
+                        <div
+                          key={key}
+                          className={cx([
+                            'table-item',
+                            table.messagesBehind > 0 && 'border-blue',
+                          ])}
+                        >
                           {table.name}
+                          {table.messagesBehind > 0 && (
+                            <div className={cx(['message'])}>
+                              {table.messagesBehind}
+                            </div>
+                          )}
                         </div>
                       );
                     })}

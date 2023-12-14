@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import popupSlice from './popup-slice';
-import connectorsSlice from './connector-slice';
 import appSlice from './app-slice';
 
 const store = configureStore({
   reducer: {
     popup: popupSlice.reducer,
-    connector: connectorsSlice.reducer,
     app: appSlice.reducer,
   },
 });

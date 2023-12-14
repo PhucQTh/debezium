@@ -10,12 +10,7 @@
     display: grid !important
 }
 
-.table-item {
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 10px;
-    padding: 8px;
-    margin-block: 4px;
-    border-radius: 8px;
-}
+
 
 .database {
     display: flex;
@@ -53,4 +48,28 @@
     padding: 5px;
     text-transform: uppercase;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 10px;
+}
+
+.table-item {
+    position: relative;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 10px;
+    padding: 8px;
+    margin-block: 4px;
+    border-radius: 8px;
+}
+
+.border-blue {
+    border: 1px solid blue;
+    box-shadow: rgba(10, 132, 255, 0.2) 0px 4px 10px;
+
+}
+
+.message {
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    right: 0;
+    top: 0;
+    padding: 8px;
 }

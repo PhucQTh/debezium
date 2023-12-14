@@ -1,8 +1,6 @@
-import classNames from "classnames/bind";
-import { type } from "os";
-import { Children } from "react";
-import styles from "src/components/button/button.module.scss";
-import { Link } from "react-router-dom";
+import classNames from 'classnames/bind';
+import styles from 'src/components/button/button.module.scss';
+import { Link } from 'react-router-dom';
 const cx = classNames.bind(styles);
 const Button: React.FC<IButtonProps> = ({
   text,
@@ -19,16 +17,16 @@ const Button: React.FC<IButtonProps> = ({
   ml,
   mb,
 }) => {
-  let Comp: React.ElementType = "button";
+  let Comp: React.ElementType = 'button';
   if (to) {
     Comp = Link;
   } else if (href) {
-    Comp = "a";
+    Comp = 'a';
   }
 
   return (
     <Comp
-      className={cx("btn", { red, blue, mint, mr, ml, mb })}
+      className={cx('btn', { red, blue, mint, mr, ml, mb })}
       onClick={onClick}
       style={{ height: height, width: width, margin: margin }}
     >

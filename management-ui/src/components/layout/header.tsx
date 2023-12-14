@@ -5,7 +5,6 @@ import styles from 'src/components/layout/header.module.scss';
 import { hostConfig } from 'src/config/config';
 import appSlice from 'src/redux/app-slice';
 import { appSelector, useAppDispatch } from 'src/redux/redux-hook';
-import { QueryCache } from '@tanstack/react-query';
 const cx = classNames.bind(styles);
 
 function Header() {

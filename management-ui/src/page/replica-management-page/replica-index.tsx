@@ -16,7 +16,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import PanelPopup from 'src/components/panel-popup/panel-popup';
 import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
-import { fetchConnectors } from 'src/redux/connector-slice';
 import { useAppDispatch } from 'src/redux/redux-hook';
 import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
@@ -50,7 +49,7 @@ function ReplicaIndexPage() {
       .all(restartPromises)
       .then(() => {
         toast.success('All failed connectors are restarted successfully');
-        fetchConnectors();
+        // fetchConnectors();
       })
       .catch((error) => {
         console.error(error);
@@ -60,7 +59,7 @@ function ReplicaIndexPage() {
     Promise.all(tables.map((connector) => handleDelete(connector.name)))
       .then(() => {
         toast.success('All connectors are deleted successfully');
-        fetchConnectors();
+        // fetchConnectors();
       })
       .catch((error) => {
         console.error(error);
@@ -289,7 +288,7 @@ const SinkContent = ({
     postAPI(url, true)
       .then(() => {
         toast.success('Connector is restarted successfully');
-        dispath(fetchConnectors());
+        // dispath(fetchConnectors());
       })
       .catch((error) => {
         console.error(error);

@@ -1,7 +1,6 @@
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
 import styles from 'src/page/home/homepage.module.scss';
-// import { config } from 'src/config/config';
 const cx = classNames.bind(styles);
 const HomePage = () => {
   return (
