@@ -106,7 +106,10 @@ app.post('/api/connectors', authenToken, async (req, res) => {
   try {
     const { api } = req.query;
     const decodedUrl = decodeURIComponent(api);
-    const response = await axios.post(decodedUrl, req.body, {
+    const data = req.body;
+    console.log(data);
+    console.log(JSON.stringify(data));
+    const response = await axios.post(decodedUrl, data, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -114,8 +117,10 @@ app.post('/api/connectors', authenToken, async (req, res) => {
     console.log(`POST: ${decodedUrl}`);
     res.send(response.data);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
-    // throw error;
+    console.log(error.response.data);
+    res
+      .status(error.response.data['error_code'])
+      .send(error.response.data['message']);
   }
 });
 app.post('/api/login', async (req, res) => {
