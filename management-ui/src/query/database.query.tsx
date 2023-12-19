@@ -7,7 +7,6 @@ const fetchBinlog = async () => {
       [server]: response.data,
     }));
   });
-
   const results = await Promise.all(requests);
   return results.reduce((acc, result) => ({ ...acc, ...result }), {}) as any;
 };

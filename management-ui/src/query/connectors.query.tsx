@@ -6,12 +6,28 @@ const config = JSON.parse(localStorage.getItem('config') || '{}');
  *
  * @return {QueryResult} - The query result containing the connectors data.
  */
-export const useConnectorsQuery = () => {
+export const useConnectorsQuery = (filter?: any) => {
   return useQuery({
     queryKey: ['connectors'],
     queryFn: () => fetchConnectors(),
     staleTime: 1 * MINUTES,
     gcTime: 1 * MINUTES,
+    select: (data: {
+      databases: any[];
+      topicGroupIP: any[];
+      connectors: any[];
+    }) => {
+      if (!filter) {
+        return data;
+      }
+      return {
+        topicGroupIP: data.topicGroupIP,
+        connectors: data.connectors.filter((item) =>
+          item.name.includes(filter)
+        ),
+        databases: data.databases,
+      };
+    },
   });
 };
 /**

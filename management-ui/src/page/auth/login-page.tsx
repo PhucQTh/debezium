@@ -16,9 +16,9 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   const handleClick = () => {
-    dispath(login({ username, password }));
+    dispatch(login({ username, password }));
   };
   const { auth } = useAppSelector(appSelector);
   const now = Date.now();

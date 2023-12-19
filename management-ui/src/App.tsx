@@ -19,9 +19,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const App: React.FC = () => {
   // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   !localStorage.getItem('environment') &&
-    dispath(appSlice.actions.setEnv(hostConfig[0].name));
+    dispatch(appSlice.actions.setEnv(hostConfig[0].name));
   //==========================================================================
   const queryClient = new QueryClient({
     defaultOptions: {

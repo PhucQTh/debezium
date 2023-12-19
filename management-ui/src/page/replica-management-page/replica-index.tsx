@@ -21,6 +21,8 @@ import LoadingComponent from 'src/components/loading/loading';
 import { useNavigate } from 'react-router-dom';
 import { deleteAPI, getAPI, postAPI, putAPI } from 'src/config/ultis';
 import { useConnectorsQuery } from 'src/query/connectors.query';
+import FormInput from 'src/components/form-input/form-input';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 const cx = classNames.bind(styles);
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 function ReplicaIndexPage() {
@@ -28,8 +30,22 @@ function ReplicaIndexPage() {
   const [popupContent, setPopupContent] = useState<any>({});
   const [bodyShow, setBodyShow] = useState<string[]>([]);
   const [columnsName, setColumnsName] = useState('');
+  const [tableSearchInput, setTableSearchInput] = useState('');
+  const [popupForm, setPopupForm] = useState('');
 
-  const dispath = useAppDispatch();
+  //#region source config state
+  const [connectionName, setConnectionName] = useState('');
+  const [serverId, setServerId] = useState('');
+  const [hostInput, setHostInput] = useState('');
+  const [portInput, setPortInput] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [dbInclude, setDbInclude] = useState('');
+  const [dbExclude, setDbExclude] = useState('');
+  const [tableEx, setTableEx] = useState('');
+  const [tableIn, setTableIn] = useState('');
+  //#endregion
+  const dispatch = useAppDispatch();
   const { kafkaConnect } = config;
   //#region HANDLE ACTION
   const handleClick = (table: string) => {
@@ -59,7 +75,6 @@ function ReplicaIndexPage() {
     Promise.all(tables.map((connector) => handleDelete(connector.name)))
       .then(() => {
         toast.success('All connectors are deleted successfully');
-        // fetchConnectors();
       })
       .catch((error) => {
         console.error(error);
@@ -70,14 +85,14 @@ function ReplicaIndexPage() {
     getAPI(configUrl, true).then((res) => {
       setPopupContent(res.data);
     });
-    dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
+    dispatch(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
   const handleGetErr = async (tableName: string) => {
     const errUrl = `${kafkaConnect}/${tableName}/status`;
     getAPI(errUrl, true).then((res) => {
       setPopupContent(res.data['tasks']['0']);
     });
-    dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
+    dispatch(popupSlice.actions.setPopupStatus(PopupStatus.open));
   };
   const handleFixTimestampWithZ = () => {
     setPopupContent((prevContent: any) => {
@@ -102,8 +117,36 @@ function ReplicaIndexPage() {
     // console.log(popupContent);
   };
   //#endregion
-
-  const { data, isError, isLoading } = useConnectorsQuery();
+  const { data, isError, isLoading } = useConnectorsQuery(tableSearchInput);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () =>
+      createSource({
+        host: hostInput,
+        port: portInput,
+        user: usernameInput,
+        pass: passwordInput,
+        serverId,
+        tableInclude: tableIn,
+        tableExclude: tableEx,
+        dbInclude: dbInclude,
+        dbExclude: dbExclude,
+        name: connectionName,
+      }),
+    onSuccess: async () => {
+      toast.success('Connector is created successfully');
+      await queryClient.invalidateQueries({
+        queryKey: ['connectors'],
+      });
+      dispatch(popupSlice.actions.setPopupStatus(PopupStatus.close));
+      // fetchConnectors();
+    },
+    onError: (error) => {
+      console.log(error.message);
+      toast.error(error.message);
+    },
+  });
+  //#region handle status
   if (isLoading) {
     return <LoadingComponent />;
   }
@@ -113,7 +156,9 @@ function ReplicaIndexPage() {
   if (!data) {
     return <ErrorPage />;
   }
+  //#endregion
   const { connectors, databases: database, topicGroupIP } = data;
+
   return (
     <div className={cx('container')}>
       <div className='mt-10'></div>
@@ -130,9 +175,25 @@ function ReplicaIndexPage() {
           </h1>
         </div>
         {isChecked === false && (
-          <div className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-3xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'>
+          <div
+            onClick={() => {
+              setPopupForm('source');
+              dispatch(popupSlice.actions.setPopupStatus(PopupStatus.open));
+            }}
+            className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-3xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'
+          >
             Create Source
           </div>
+        )}
+        {isChecked === true && (
+          <FormInput
+            type={'text'}
+            placeholder='Search for table...'
+            onChange={(e) => {
+              setTableSearchInput(e.target.value);
+            }}
+            value={tableSearchInput}
+          />
         )}
       </div>
       <>
@@ -227,36 +288,181 @@ function ReplicaIndexPage() {
       </>
 
       <PanelPopup>
-        {popupContent['trace'] ? (
-          <>
-            <h1 className='text-red-500'>Error</h1>
-            <span>{popupContent['trace']}</span>
-          </>
-        ) : (
-          <>
-            <h1>Configuration: {popupContent['name']}</h1>
-            {Object.entries(popupContent).map(([key, value]) => (
-              <div key={key}>
-                <span>{key}: </span>
-                <span>{value as ReactNode}</span>
-              </div>
-            ))}
-            <div className='flex mt-5 justify-between'>
-              <input
+        {popupForm === 'source' ? (
+          <div>
+            <h1>Create Source</h1>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Connect Specify:
+              </label>
+              <FormInput
                 type='text'
-                className={cx('input-field')}
+                placeholder='Connection name'
+                value={connectionName}
                 onChange={(e) => {
-                  setColumnsName(e.target.value);
+                  setConnectionName(e.target.value);
                 }}
+                style={{ width: '40%', marginRight: '10px' }}
               />
-              <button
-                onClick={handleFixTimestampWithZ}
-                className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-2xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'
-              >
-                Fix timestamp with Z
-              </button>
+              <FormInput
+                type='text'
+                placeholder='Server Id, example: 5788'
+                value={serverId}
+                onChange={(e) => {
+                  setServerId(e.target.value);
+                }}
+                style={{ width: '40%', marginRight: '10px' }}
+              />
             </div>
-          </>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                DB Host:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Host'
+                value={hostInput}
+                onChange={(e) => {
+                  setHostInput(e.target.value);
+                }}
+                style={{ width: '60%', marginRight: '10px' }}
+              />
+
+              <FormInput
+                type='text'
+                placeholder='Port'
+                value={portInput}
+                onChange={(e) => {
+                  setPortInput(e.target.value);
+                }}
+                style={{ width: '20%', marginRight: '10px' }}
+              />
+            </div>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Authenticator:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Username'
+                value={usernameInput}
+                onChange={(e) => {
+                  setUsernameInput(e.target.value);
+                }}
+                style={{ width: '40%', marginRight: '10px' }}
+              />
+              <FormInput
+                type='text'
+                placeholder='Password'
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value);
+                }}
+                style={{ width: '40%', marginRight: '10px' }}
+              />
+            </div>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Database include:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Include'
+                value={dbInclude}
+                onChange={(e) => {
+                  setDbInclude(e.target.value);
+                }}
+                style={{ width: '80%', marginRight: '10px' }}
+              />
+            </div>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Database exclude:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Exclude'
+                value={dbExclude}
+                onChange={(e) => {
+                  setDbExclude(e.target.value);
+                }}
+                style={{ width: '80%', marginRight: '10px' }}
+              />
+            </div>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Table include:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Include'
+                value={tableIn}
+                onChange={(e) => {
+                  setTableIn(e.target.value);
+                }}
+                style={{ width: '80%', marginRight: '10px' }}
+              />
+            </div>
+            <div className={cx('input-container')}>
+              <label htmlFor='conn-string' style={{ width: '20%' }}>
+                Table exclude:
+              </label>
+              <FormInput
+                type='text'
+                placeholder='Exclude'
+                value={tableEx}
+                onChange={(e) => {
+                  setTableEx(e.target.value);
+                }}
+                style={{ width: '80%', marginRight: '10px' }}
+              />
+            </div>
+            <button
+              onClick={() => {
+                mutation.mutateAsync();
+              }}
+              className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-2xl  font-bold  px-5 py-2.5 rounded-lg text-center  m-4 cursor-pointer '
+            >
+              Create source
+            </button>
+          </div>
+        ) : (
+          <div>
+            {popupContent['trace'] ? (
+              <>
+                <h1 className='text-red-500'>Error</h1>
+                <span>{popupContent['trace']}</span>
+              </>
+            ) : (
+              <>
+                <h1>Configuration: {popupContent['name']}</h1>
+                {Object.entries(popupContent).map(([key, value]) => (
+                  <div key={key}>
+                    <span>{key}: </span>
+                    <span>{value as ReactNode}</span>
+                  </div>
+                ))}
+                <div className='flex mt-5 justify-between'>
+                  <input
+                    type='text'
+                    className={cx('input-field')}
+                    onChange={(e) => {
+                      setColumnsName(e.target.value);
+                    }}
+                  />
+                  <button
+                    onClick={handleFixTimestampWithZ}
+                    className='text-white bg-blue-500 shadow-lg shadow-blue-500/50 text-2xl  font-bold  px-5 py-2.5 rounded-lg text-center  mr-4 cursor-pointer'
+                  >
+                    Fix timestamp with Z
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        {mutation.isError && (
+          <span className='text-red-500'>{mutation.error?.message}</span>
         )}
       </PanelPopup>
     </div>
@@ -281,7 +487,6 @@ const SinkContent = ({
   getConfig?: (str: string) => void;
   getErr?: (str: string) => void;
 }) => {
-  const dispath = useAppDispatch();
   const handleRestart = async () => {
     const { kafkaConnect } = config;
     const url = `${kafkaConnect}/${topic.name}/tasks/0/restart`;
@@ -386,7 +591,65 @@ const SourceContent = ({ topic }: { topic: Topic }) => {
 const handleDelete = async (table: string) => {
   await deleteAPI(`${config.kafkaConnect}/${table}`, '', true);
 };
-
+const createSource = async ({
+  user,
+  pass,
+  host,
+  port,
+  serverId,
+  tableInclude,
+  tableExclude,
+  dbInclude,
+  dbExclude,
+  name,
+}: {
+  user: string;
+  pass: string;
+  host: string;
+  port?: string;
+  serverId: string;
+  tableInclude?: string;
+  tableExclude?: string;
+  dbInclude?: string;
+  dbExclude?: string;
+  name: string;
+}) => {
+  const sourceConfig = `{
+    "name": "${name}",
+    "config": {
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "tasks.max": "1",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "true",
+        "value.converter.schemas.enable": "true",
+        "database.hostname": "${host}",
+        "database.port": "${port || 3306}",
+        "database.user": "${user}",
+        "database.password": "${pass}",
+        "database.server.id": "${serverId}",
+        ${dbInclude && `"database.include.list": "${dbInclude}",`}
+        ${dbExclude && `"database.exclude.list": "${dbExclude}",`}
+        ${tableInclude && `"table.include.list": "${tableInclude}",`}
+        ${tableExclude && `"table.exclude.list": "${tableExclude}",`}
+        "schema.history.internal.kafka.topic": "schema-changes.production",
+        "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+        "snapshot.mode": "initial",
+        "topic.creation.enable": "true",
+        "topic.prefix": "${name}",
+        "cleanup.policy": "compact",
+        "topic.creation.default.replication.factor": "1",
+        "topic.creation.default.partitions": "1",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "transforms.unwrap.delete.handling.mode": "rewrite",
+        "time.precision.mode": "connect",
+        "include.schema.changes": "true"
+    }
+}`;
+  return postAPI(`${config.kafkaConnect}`, sourceConfig, true);
+};
 export default ReplicaIndexPage;
 
 interface Connector {

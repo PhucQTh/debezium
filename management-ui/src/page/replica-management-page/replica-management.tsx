@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from 'src/page/replica-management-page/replica-management.module.scss';
@@ -12,26 +12,21 @@ import { useAppDispatch } from 'src/redux/redux-hook';
 import popupSlice, { PopupStatus } from 'src/redux/popup-slice';
 import FormInput from 'src/components/form-input/form-input';
 import RadarLoader from 'src/components/radar-loader/radar-loader';
+import { useQuery } from '@tanstack/react-query';
 const config = JSON.parse(localStorage.getItem('config') || '{}');
 const cx = classNames.bind(styles);
 function ReplicaManagementPage() {
   const { connector } = useParams<{ connector: string }>();
-  const [tables, setTables] = useState(['']);
-  const [topics, setTopics] = useState<ITopic[]>([]);
-  const [database, setDatabase] = useState(['']);
-  const [loader, setLoader] = useState('loading');
   const [isCustomConfig, setIsCustomConfig] = useState(false);
   const [bodyShow, setBodyShow] = useState<string[]>([]);
   const { backupDbHost, backupDbUser, backupDbPassword, kafkaUI } = config;
-
   const [hostInput, setHostInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [prefixInput, setPrefixInput] = useState('');
   const [prefixDbInput, setPrefixDbInput] = useState('');
-
+  const [tableSearchInput, setTableSearchInput] = useState('');
   let link = `${kafkaUI}/ui/clusters/Default/all-topics/`;
-
   const handleClick = (table: string) => {
     if (bodyShow.includes(table)) {
       setBodyShow(bodyShow.filter((t) => t !== table));
@@ -40,76 +35,90 @@ function ReplicaManagementPage() {
     }
   };
   const fetchData = async () => {
-    try {
-      const { kafkaConnect } = config;
-      const topicUrl = `${kafkaConnect}/${connector}/topics`;
-      const [topicsResponse, connectorsResponse] = await Promise.all([
-        getAPI(topicUrl, true),
-        getAPI(kafkaConnect, true),
-      ]);
-      const completeData: ITopic[] = [];
-      const { topics } = topicsResponse.data[connector || ''];
-      const filterData = topics.filter((table: string) => table.includes('.'));
-      filterData.forEach((element: string) => {
-        const data = element.split('.');
-        const sinkConnectors = connectorsResponse.data.filter(
-          (item: string) =>
-            `-${item.split('-')[1]}-${item.split('-')[2]}` ===
-            `-${data[1]}-${data[2]}`
-        );
-        const prefix = sinkConnectors.map((s: string) => s.split('-')[0]);
-        completeData.push({
-          topic: element,
-          database: data[1],
-          table: data[2],
-          sink: prefix.join('|'),
-        });
-      });
-      console.log(completeData);
-      setTables(filterData);
-      setTopics(completeData);
-      setDatabase(
-        Array.from(
-          new Set(filterData.map((item: string) => item.split('.')[1]))
-        )
+    const { kafkaConnect } = config;
+    const topicUrl = `${kafkaConnect}/${connector}/topics`;
+    const [topicsResponse, connectorsResponse] = await Promise.all([
+      getAPI(topicUrl, true),
+      getAPI(kafkaConnect, true),
+    ]);
+    const completeData: ITopic[] = [];
+    const { topics } = topicsResponse.data[connector || ''];
+    const filterData = topics.filter((table: string) => table.includes('.'));
+    filterData.forEach((element: string) => {
+      const data = element.split('.');
+      const sinkConnectors = connectorsResponse.data.filter(
+        (item: string) =>
+          `-${item.split('-')[1]}-${item.split('-')[2]}` ===
+          `-${data[1]}-${data[2]}`
       );
-      setLoader('success');
-    } catch (err) {
-      setLoader('error');
-      console.log(err);
-    }
+      const prefix = sinkConnectors.map((s: string) => s.split('-')[0]);
+      completeData.push({
+        topic: element,
+        database: data[1],
+        table: data[2],
+        sink: prefix.join('|'),
+      });
+    });
+    var database = [''];
+    database = Array.from(
+      new Set(filterData.map((item: string) => item.split('.')[1]))
+    );
+    return { tables: filterData, topics: completeData, database };
   };
   const dispath = useAppDispatch();
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  if (loader === 'error') {
+
+  const { isError, isLoading, data } = useQuery({
+    queryKey: ['connector'],
+    queryFn: () => fetchData(),
+    select: (data) => {
+      return {
+        database: data.database,
+        topics: data.topics.filter((item) =>
+          item.table.includes(tableSearchInput)
+        ),
+        tables: data.tables,
+      };
+    },
+  });
+  if (isError) {
     return <ErrorPage />;
   }
 
-  if (loader === 'loading') {
+  if (isLoading) {
     return <RadarLoader />;
   }
+  if (!data) {
+    return <ErrorPage />;
+  }
+  const { database, topics, tables } = data;
+
   return (
     <div className={cx('container')}>
       <div className={cx('header')}>
         <h1>Connector: {connector}</h1>
-        <button
-          className='text-white text-3xl font-medium  px-5 py-2.5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg'
-          onClick={() => {
-            dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
-          }}
-        >
-          Create Sink Connector
-        </button>
+        <div className='flex'>
+          <button
+            className='text-white text-2xl font-medium  px-5 hover:shadow-blue-500/50 bg-blue-500 text-center shadow-lg mr-5'
+            onClick={() => {
+              dispath(popupSlice.actions.setPopupStatus(PopupStatus.open));
+            }}
+          >
+            Create Sink Connector
+          </button>
+          <FormInput
+            type={'text'}
+            placeholder='Search for table...'
+            onChange={(e) => {
+              setTableSearchInput(e.target.value);
+            }}
+            value={tableSearchInput}
+          />
+        </div>
       </div>
-      {database.map((database: string, index) => {
+      {database.map((database: string, index: number) => {
         const filteredTopics = topics.filter(
           (topic: ITopic) => topic.database === database
         );
-        // .sort((a, b) => a.sink.localeCompare(b.sink));
-
         return (
           <div key={index}>
             <div

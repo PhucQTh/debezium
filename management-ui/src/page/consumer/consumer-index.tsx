@@ -31,7 +31,6 @@ const ConsumerIndex = () => {
   if (isError) {
     return <div>Error</div>;
   }
-
   //#endregion
   return (
     <div>
