@@ -6,7 +6,7 @@ import styles from "src/components/float-button/float-buton.module.scss";
 const cx = classNames.bind(styles);
 const FloatButton = ({ to }: Props) => {
   return (
-    <Link to={to} className={cx("float-btn")}>
+    <Link to={to} className={styles["float-btn"]}>
       <FontAwesomeIcon icon={faPlus} fontSize={"3rem"} fontWeight={"bold"} />
     </Link>
   );

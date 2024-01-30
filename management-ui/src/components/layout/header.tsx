@@ -1,13 +1,12 @@
-import classNames from 'classnames/bind';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from 'src/components/layout/header.module.scss';
 import { hostConfig } from 'src/config/config';
 import appSlice from 'src/redux/app-slice';
 import { appSelector, useAppDispatch } from 'src/redux/redux-hook';
-const cx = classNames.bind(styles);
 
-function Header() {
+const Header = React.memo(() => {
   const dispath = useAppDispatch();
   const { environment, auth } = useSelector(appSelector);
   const navigate = useNavigate();
@@ -22,30 +21,30 @@ function Header() {
   };
   return (
     <>
-      <div className={cx('header-wrapper')}>
-        <div className={cx('header-mobile')}>
+      <div className={styles['header-wrapper']}>
+        <div className={styles['header-mobile']}>
           <Link to={'/'}>
             <img
               src='/logo.png'
               alt='logo-accredoasia'
-              className={cx('logo')}
+              className={styles['logo']}
             />
           </Link>
         </div>
-        <div className={cx('header-container')}>
-          <div className={cx('header-left')}>
+        <div className={styles['header-container']}>
+          <div className={styles['header-left']}>
             <Link to={'/'}>
               <img
                 src='/logo.png'
                 alt='logo-accredoasia'
-                className={cx('logo')}
+                className={styles['logo']}
               />
             </Link>
           </div>
           {auth && (
-            <div className={cx('header-right')}>
+            <div className={styles['header-right']}>
               <select
-                className={cx('select-environment')}
+                className={styles['select-environment']}
                 onChange={(e) => {
                   handleChange(e.target.value);
                 }}
@@ -58,7 +57,7 @@ function Header() {
                 ))}
               </select>
 
-              <div className={cx('btn-logout')} onClick={handleLogout}>
+              <div className={styles['btn-logout']} onClick={handleLogout}>
                 Logout
               </div>
             </div>
@@ -67,6 +66,6 @@ function Header() {
       </div>
     </>
   );
-}
+})
 
 export default Header;

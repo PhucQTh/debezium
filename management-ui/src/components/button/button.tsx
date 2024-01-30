@@ -32,13 +32,6 @@ const Button: React.FC<IButtonProps> = ({
     >
       {text}
     </Comp>
-    // <button
-    //   className={cx("btn", { red, blue })}
-    //   onClick={onClick}
-    //   style={{ height: height, width: width }}
-    // >
-    //   {text}
-    // </button>
   );
 };
 

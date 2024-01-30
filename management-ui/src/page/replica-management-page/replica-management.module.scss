@@ -266,3 +266,16 @@ input:checked+.slider:before {
         margin-left: 5px;
     }
 }
+
+.status-panel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 10px;
+    padding-block: 5px;
+    padding-inline: 20px;
+    border: 5px solid rgb(26, 138, 26);
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: rgba(100, 100, 100, 0.24) 0px 3px 8px;
+}

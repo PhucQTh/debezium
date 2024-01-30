@@ -6,8 +6,7 @@ const cx = classNames.bind(styles);
 
 const LoadingComponent = () => {
   return (
-    <div className={cx('wrapper')}>
-      {/* <span className={cx('loader')} /> */}
+    <div className={styles['wrapper']}>
       <RadarLoader />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { MINUTES, getAPI } from 'src/config/ultis';
+import { MINUTES, deleteAPI, getAPI } from 'src/config/ultis';
 const { apiURL } = JSON.parse(localStorage.getItem('config') || '{}');
 const fetchBinlog = async () => {
   const requests = servers.map((server) => {
@@ -9,7 +9,10 @@ const fetchBinlog = async () => {
   });
   const results = await Promise.all(requests);
   return results.reduce((acc, result) => ({ ...acc, ...result }), {}) as any;
-};
+}; 
+export const deleteBinlog = async (binlogIndex: string, serverName: string) => {
+  return deleteAPI(`${apiURL}/binlog/?server=${serverName}&binlog=${binlogIndex}`);
+}
 export const useDatabaseQuery = () => {
   return useQuery({
     queryKey: ['databases'],

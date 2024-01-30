@@ -1,12 +1,8 @@
-// https://freecodez.com
-import style from './radar-loader.module.scss';
-import classNames from 'classnames/bind';
-
-const cx = classNames.bind(style);
+import styles from './radar-loader.module.scss';
 const RadarLoader = () => {
   return (
-    <div className={cx('wrapper')}>
-      <div className={cx('loader')}>
+    <div className={styles['wrapper']}>
+      <div className={styles['loader']}>
         <span></span>
       </div>
     </div>

@@ -139,7 +139,6 @@ function ReplicaIndexPage() {
         queryKey: ['connectors'],
       });
       dispatch(popupSlice.actions.setPopupStatus(PopupStatus.close));
-      // fetchConnectors();
     },
     onError: (error) => {
       console.log(error.message);
@@ -286,7 +285,7 @@ function ReplicaIndexPage() {
             );
           })}
       </>
-
+      {!isChecked && <div className={cx('status-panel')}>Status</div>}
       <PanelPopup>
         {popupForm === 'source' ? (
           <div>
@@ -643,7 +642,7 @@ const createSource = async ({
         "transforms": "unwrap",
         "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.unwrap.drop.tombstones": "false",
-        "transforms.unwrap.delete.handling.mode": "rewrite",
+        "transforms.unwrap.delete.handling.mode": "none",
         "time.precision.mode": "connect",
         "include.schema.changes": "true"
     }

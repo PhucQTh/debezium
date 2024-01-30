@@ -185,6 +185,22 @@ app.delete('/api/connectors', authenToken, async (req, res) => {
     });
   }
 });
+app.delete('/api/binlog', authenToken, async (req, res) => {
+  const { binlog, server } = req.query;
+  const query = `PURGE BINARY LOGS TO '${binlog}';`;
+  try {
+    conn = mysql.createConnection(
+      server === 'production' ? prodConfig : sftConfig
+    );
+    conn.query(query, [binlog], (err, results) => {
+      err? res.status(500).send(err) : res.send(results);
+    });
+  } catch (err) {
+    throw err;
+  } finally {
+    conn.end();
+  }
+});
 
 function authenToken(req, res, next) {
   const authorizationClient = req.headers['authorization'];

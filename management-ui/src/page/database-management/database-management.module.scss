@@ -60,8 +60,15 @@
     &:hover {
         box-shadow: rgba(31, 139, 248, 0.2) 0px 8px 24px;
     }
+    display: flex;
+    justify-content: space-between;
 }
-
+.btn-clear-binlog{
+    color: white;
+    background-color: #f82a2a;
+    padding-inline: 5px;
+    border-radius: 10px;
+}
 .card-footer {
     background-color: white;
     display: flex;

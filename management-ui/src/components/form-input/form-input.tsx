@@ -1,7 +1,5 @@
-import classNames from 'classnames/bind';
 import { LegacyRef } from 'react';
 import styles from 'src/components/form-input/form-input.module.scss';
-const cx = classNames.bind(styles);
 
 const FormInput: React.FC<IFormInputProps> = ({
   type,
@@ -13,7 +11,7 @@ const FormInput: React.FC<IFormInputProps> = ({
   disabled,
 }) => {
   return (
-    <div className={cx('form-input')} style={style}>
+    <div className={styles['form-input']} style={style}>
       <input
         disabled={disabled}
         type={type}
