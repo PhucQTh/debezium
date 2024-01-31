@@ -56,7 +56,7 @@ const homeItem = [
   {
     title: 'Swagger',
     to: '/swagger',
-    img: '/swagger.png',
+    img: '/swagger-logo.png',
   },
 ];
 

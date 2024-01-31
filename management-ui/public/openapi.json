@@ -8,256 +8,262 @@
     },
     "version": "0.0.1"
   },
- 
-  "servers": [{ "url": "/api/v3" }],
+
+  "servers": [{ "url": "http://192.168.109.42:4000" }],
   "tags": [
-    { "name": "user", "description": "Operations about user" }
+    { "name": "database", "description": "Operations about database" }
   ],
   "paths": {
-    "/user": {
-      "post": {
-        "tags": ["user"],
-        "summary": "Create user",
-        "description": "This can only be done by the logged in user.",
-        "operationId": "createUser",
-        "requestBody": {
-          "description": "Created user object",
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/createWithList": {
-      "post": {
-        "tags": ["user"],
-        "summary": "Creates list of users with given input array",
-        "description": "Creates list of users with given input array",
-        "operationId": "createUsersWithListInput",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/xml": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              },
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          },
-          "default": { "description": "successful operation" }
-        }
-      }
-    },
-    "/user/login": {
+    "/api/get-primary-key": {
       "get": {
-        "tags": ["user"],
-        "summary": "Logs user into the system",
-        "description": "",
-        "operationId": "loginUser",
+        "tags": ["database"],
+        "summary": "Get primary key columns for tables",
+        "description": "Retrieves the primary key columns for all tables within the specified database schema.",
+        "operationId": "getPrimaryKey",
         "parameters": [
           {
-            "name": "username",
+            "name": "dbname",
             "in": "query",
-            "description": "The user name for login",
-            "required": false,
-            "schema": { "type": "string" }
+            "description": "The name of the database schema",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
-            "name": "password",
+            "name": "server",
             "in": "query",
-            "description": "The password for login in clear text",
-            "required": false,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "headers": {
-              "X-Rate-Limit": {
-                "description": "calls per hour allowed by the user",
-                "schema": { "type": "integer", "format": "int32" }
-              },
-              "X-Expires-After": {
-                "description": "date in UTC when token expires",
-                "schema": { "type": "string", "format": "date-time" }
-              }
-            },
-            "content": {
-              "application/xml": { "schema": { "type": "string" } },
-              "application/json": { "schema": { "type": "string" } }
-            }
-          },
-          "400": { "description": "Invalid username/password supplied" }
-        }
-      }
-    },
-    "/user/logout": {
-      "get": {
-        "tags": ["user"],
-        "summary": "Logs out current logged in user session",
-        "description": "",
-        "operationId": "logoutUser",
-        "parameters": [],
-        "responses": { "default": { "description": "successful operation" } }
-      }
-    },
-    "/user/{username}": {
-      "get": {
-        "tags": ["user"],
-        "summary": "Get user by user name",
-        "description": "",
-        "operationId": "getUserByName",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "description": "The name that needs to be fetched. Use user1 for testing. ",
+            "description": "The server environment, either 'production' or other configurations",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "enum": ["production", "other"]
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "An array of tables and their primary key columns",
             "content": {
-              "application/xml": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              },
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "TABLE_NAME": {
+                        "type": "string",
+                        "description": "Name of the table"
+                      },
+                      "PK": {
+                        "type": "array",
+                        "description": "Primary key columns of the table",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           },
-          "400": { "description": "Invalid username supplied" },
-          "404": { "description": "User not found" }
-        }
-      },
-      "put": {
-        "tags": ["user"],
-        "summary": "Update user",
-        "description": "This can only be done by the logged in user.",
-        "operationId": "updateUser",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "description": "name that need to be deleted",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "description": "Update an existent user in the store",
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            },
-            "application/xml": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            }
+          "400": {
+            "description": "Bad Request. Invalid input supplied"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
-        "responses": { "default": { "description": "successful operation" } }
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/binlog": {
+      "get": {
+        "tags": ["database"],
+        "summary": "Show binary logs",
+        "description": "Retrieves a list of binary logs from the server.",
+        "operationId": "getBinaryLogs",
+        "parameters": [
+          {
+            "name": "server",
+            "in": "query",
+            "description": "The server from which to retrieve the binary logs",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["production", "sft"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of binary logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "Log_name": {
+                        "type": "string",
+                        "description": "The name of the binary log file"
+                      },
+                      "File_size": {
+                        "type": "string",
+                        "description": "The size of the binary log file"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Server name is wrong or missing parameters"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
       },
       "delete": {
-        "tags": ["user"],
-        "summary": "Delete user",
-        "description": "This can only be done by the logged in user.",
-        "operationId": "deleteUser",
+        "summary": "Deletes a specified binary log",
+        "tags": ["database"],
+        "description": "Purges the binary logs up to the specified log file.",
+        "operationId": "deleteBinlog",
         "parameters": [
           {
-            "name": "username",
-            "in": "path",
-            "description": "The name that needs to be deleted",
+            "name": "binlog",
+            "in": "query",
+            "description": "The name of the binary log to delete.",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "server",
+            "in": "query",
+            "description": "The server from which to purge the binary log. Use 'production' for the production server, otherwise it defaults to the soft environment.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["production", "soft"]
+            }
           }
         ],
         "responses": {
-          "400": { "description": "Invalid username supplied" },
-          "404": { "description": "User not found" }
+          "200": {
+            "description": "Binary log deleted successfully"
+          },
+          "400": {
+            "description": "Invalid query parameters"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/login": {
+  "post": {
+    "tags": ["Authentication"],
+    "summary": "Log in a user",
+    "description": "Authenticates user credentials and provides a JWT token for successful logins.",
+    "requestBody": {
+      "description": "Credentials for logging in",
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string",
+                "example": "admin"
+              },
+              "password": {
+                "type": "string",
+                "example": "admin"
+              }
+            }
+          }
         }
       }
-    }
+    },
+    "responses": {
+      "200": {
+        "description": "Login successful",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "authorization": {
+                  "type": "string",
+                  "example": "success"
+                },
+                "token": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden, invalid credentials",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "authorization": {
+                  "type": "string",
+                  "example": "failed"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Invalid credentials"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    },
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ]
+  }
+}
+
+
   },
   "components": {
     "schemas": {
-      "Order": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64", "example": 10 },
-          "petId": { "type": "integer", "format": "int64", "example": 198772 },
-          "quantity": { "type": "integer", "format": "int32", "example": 7 },
-          "shipDate": { "type": "string", "format": "date-time" },
-          "status": {
-            "type": "string",
-            "description": "Order Status",
-            "example": "approved",
-            "enum": ["placed", "approved", "delivered"]
-          },
-          "complete": { "type": "boolean" }
-        },
-        "xml": { "name": "order" }
-      },
-      "Customer": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64", "example": 100000 },
-          "username": { "type": "string", "example": "fehguy" },
-          "address": {
-            "type": "array",
-            "xml": { "name": "addresses", "wrapped": true },
-            "items": { "$ref": "#/components/schemas/Address" }
-          }
-        },
-        "xml": { "name": "customer" }
-      },
-      "Address": {
-        "type": "object",
-        "properties": {
-          "street": { "type": "string", "example": "437 Lytton" },
-          "city": { "type": "string", "example": "Palo Alto" },
-          "state": { "type": "string", "example": "CA" },
-          "zip": { "type": "string", "example": "94301" }
-        },
-        "xml": { "name": "address" }
-      },
-      "Category": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64", "example": 1 },
-          "name": { "type": "string", "example": "Dogs" }
-        },
-        "xml": { "name": "category" }
-      },
       "User": {
         "type": "object",
         "properties": {
@@ -276,48 +282,6 @@
           }
         },
         "xml": { "name": "user" }
-      },
-      "Tag": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "name": { "type": "string" }
-        },
-        "xml": { "name": "tag" }
-      },
-      "Pet": {
-        "required": ["name", "photoUrls"],
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64", "example": 10 },
-          "name": { "type": "string", "example": "doggie" },
-          "category": { "$ref": "#/components/schemas/Category" },
-          "photoUrls": {
-            "type": "array",
-            "xml": { "wrapped": true },
-            "items": { "type": "string", "xml": { "name": "photoUrl" } }
-          },
-          "tags": {
-            "type": "array",
-            "xml": { "wrapped": true },
-            "items": { "$ref": "#/components/schemas/Tag" }
-          },
-          "status": {
-            "type": "string",
-            "description": "pet status in the store",
-            "enum": ["available", "pending", "sold"]
-          }
-        },
-        "xml": { "name": "pet" }
-      },
-      "ApiResponse": {
-        "type": "object",
-        "properties": {
-          "code": { "type": "integer", "format": "int32" },
-          "type": { "type": "string" },
-          "message": { "type": "string" }
-        },
-        "xml": { "name": "##default" }
       }
     },
     "requestBodies": {
