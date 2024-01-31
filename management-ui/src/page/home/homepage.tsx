@@ -53,6 +53,11 @@ const homeItem = [
     to: '/database-management',
     img: '/database.png',
   },
+  {
+    title: 'Swagger',
+    to: '/swagger',
+    img: '/swagger.png',
+  },
 ];
 
 export default HomePage;
