@@ -146,7 +146,6 @@ app.post('/api/login', async (req, res) => {
     throw error;
   }
 });
-
 app.put('/api/connectors', authenToken, async (req, res) => {
   try {
     const { api } = req.query;
