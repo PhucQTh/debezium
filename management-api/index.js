@@ -3,6 +3,7 @@ const cors = require('cors');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
+
 const {
   backupConfig,
   prodConfig,
@@ -70,7 +71,6 @@ app.get('/api/binlog', authenToken, async (req, res) => {
         }
       });
     });
-
     // Use the connection
     const data = await new Promise((resolve, reject) => {
       connection.query(query, (err, results) => {
@@ -81,10 +81,8 @@ app.get('/api/binlog', authenToken, async (req, res) => {
         }
       });
     });
-
     // Release the connection back to the pool
     connection.release();
-
     res.json(data);
   } catch (err) {
     res.status(500).send('Internal Server Error');
@@ -192,7 +190,7 @@ app.delete('/api/binlog', authenToken, async (req, res) => {
       server === 'production' ? prodConfig : sftConfig
     );
     conn.query(query, [binlog], (err, results) => {
-      err? res.status(500).send(err) : res.send(results);
+      err ? res.status(500).send(err) : res.send(results);
     });
   } catch (err) {
     throw err;
@@ -215,4 +213,34 @@ function authenToken(req, res, next) {
   }
 }
 
+app.post('/api/sync-bc', async (req, res) => {
+  const { query } = req.body;
+  const bcConfig = {
+    host: '192.168.109.42',
+    port: '32772',
+    user: 'root',
+    password: '123456',
+    database: 'D365',
+  };
+  try {
+    conn = mysql.createConnection(bcConfig);
+    conn.query(query, (err, result) => {
+      if (err) {
+        if (err.code === 'ER_NO_DB_ERROR' || err.code === 'ER_DUP_ENTRY') {
+          return res.status(400).send({
+            message: err.message,
+          });
+        }
+      } else {
+        res.send({
+          status: 'success',
+        });
+      }
+    });
+  } catch (err) {
+
+  } finally {
+    conn.end();
+  }
+});
 app.listen(4000, () => console.log('App listening on port 4000'));
