@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
+ <img height=150px src="https://debezium.io/assets/images/color_white_debezium_type_600px.svg" alt="Debezium logo"></a>
 </p>
 
 <h3 align="center">CDC Application for ACCA Database</h3>
@@ -18,11 +18,7 @@
 
 - [About](#about)
 - [Getting Started](#getting_started)
-- [Deployment](#deployment)
-- [Usage](#usage)
 - [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
 
@@ -34,38 +30,37 @@
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
 What things you need to install the software and how to install them.
+To get started with the ACCA CDC application, follow these steps:
+
+1. Clone the repository:
 
 ```
-Give examples
+git clone https://gitlab.apicorp.com/dean.le/acca_debezium.git
 ```
+
+2. Compose up for each folder in project
+
+```
+sudo docker compose up --build -d
+```
+
+Home 
+
+```
+host:80
+```
+
+User: admin / Password: admin
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running.
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo.
-
-
 ## ⛏️ Built Using <a name = "built_using"></a>
 
-\
 - [Express](https://expressjs.com/) - The web framework used
 - [Debezium](https://debezium.io/) - Change Data Capture for various databases
 - [Docker](https://www.docker.com/) - Used to containerize the application
@@ -74,7 +69,7 @@ End with an example of getting some data out of the system or using it for a lit
 ## ✍️ Authors <a name = "authors"></a>
 
 - [@phuc.thuong](https://github.com/PhucQTh) - Idea & Initial work
-.
+  .
 
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
