@@ -1,0 +1,51 @@
+.container {
+    justify-content: center;
+    margin: 0 auto;
+    padding-bottom: 30px;
+    padding-inline: 50px;
+    // overflow: hidden;
+    width: 1300px;
+}
+
+.card-detail{
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    padding: 10px;
+    user-select: none;
+}
+.title{
+    display: flex;
+    justify-content: space-between;
+}
+.icon{
+    margin-right: 10px;
+}
+.success{
+    color: rgb(7, 221, 7);
+}
+
+.sync-status{
+    background-color: rgb(174, 241, 174);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    padding: 5px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: green;
+    height: fit-content;
+}
+
+.time{
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.page-title{
+    font-weight: bold;
+    margin-top: 20px;
+}

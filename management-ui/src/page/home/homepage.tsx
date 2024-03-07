@@ -53,10 +53,15 @@ const homeItem = [
     to: '/database-management',
     img: '/database.png',
   },
+  // {
+  //   title: 'Swagger',
+  //   to: '/swagger',
+  //   img: '/swagger-logo.png',
+  // },
   {
-    title: 'Swagger',
-    to: '/swagger',
-    img: '/swagger-logo.png',
+    title: 'D365 Sync Monitoring',
+    to: '/sync-monitoring',
+    img: '/monitoring-icon.png',
   },
 ];
 

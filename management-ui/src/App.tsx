@@ -17,6 +17,7 @@ import ConsumerIndex from './page/consumer/consumer-index';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ApiPage from './page/api-document/apipage';
+import SyncMonitoringPage from './page/sync-monitoring/sync-monitoring-page';
 
 const App: React.FC = () => {
   // SET ENV FROM LOCAL STORAGE TO REDUX IN THE FIRST TIME APP RUN
@@ -108,6 +109,12 @@ const routes = [
     name: 'Swagger',
     path: '/swagger',
     element: ApiPage,
+    protect: true,
+  },
+  {
+    name: 'Sync Monitoring',
+    path: '/sync-monitoring',
+    element: SyncMonitoringPage,
     protect: true,
   },
   {
